@@ -1,1 +1,3 @@
-import «TS».Core
+import «TS».Basic
+import «TS».Execution
+import «TS».Examples
