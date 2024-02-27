@@ -27,6 +27,11 @@ def TS.PathFragment.Initial :=
 def TS.PathFragment.Maximal :=
   ts.Terminal π.last
 
+def TS.PathFromN (st : s) :=
+  { π : ts.PathFragment n // π.first = st ∧ π.Maximal}
+def TS.PathFrom (st : s) :=
+  { π : Σ (n : ℕ), ts.PathFragment n // π.2.first = st ∧ π.2.Maximal}
+
 def TS.PathN :=
   { π : ts.PathFragment n // π.Initial ∧ π.Maximal }
 def TS.Path :=
