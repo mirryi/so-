@@ -28,7 +28,7 @@ def StateFormula.xor  := disj (conj Φ₁ (neg Φ₂)) (conj Φ₂ (neg Φ₁)) 
 def StateFormula.potential    := exist (untl top Φ)
 def StateFormula.inevitable   := all (untl top Φ)
 def StateFormula.potentialAll := neg (inevitable (neg Φ))
-def StateFormula.invariantly  := neg (potential (neg Φ))
+def StateFormula.invariant    := neg (potential (neg Φ))
 
 namespace Syntax
   prefix:80 "⬝"    => StateFormula.prop
@@ -43,7 +43,7 @@ namespace Syntax
   prefix:50 "⬝∃♢"  => StateFormula.potential -- \exists\diamondsuit
   prefix:50 "⬝∀♢"  => StateFormula.inevitable -- \forall\diamondsuit
   prefix:50 "⬝∃■"  => StateFormula.potentialAll -- \exists\sqb
-  prefix:50 "⬝∀■"  => StateFormula.inevitable -- \forall\sqb
+  prefix:50 "⬝∀■"  => StateFormula.invariant -- \forall\sqb
   prefix:50 "⬝◯"   => PathFormula.next
   infixr:50 " ⬝U " => PathFormula.untl
 end Syntax
