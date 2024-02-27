@@ -17,14 +17,14 @@ mutual
       | ⬝a               => a ∈ ts.label st
       | ⬝¬Φ              => ¬(ts.StateSatisfaction Φ st)
       | Φ₁ ⬝∧ Φ₂         => (ts.StateSatisfaction Φ₁ st) ∧ (ts.StateSatisfaction Φ₂ st)
-      | ⬝∃ φ             => ∃ π : ts.Path, ts.PathSatisfaction π φ
-      | ⬝∀ φ             => ∀ π : ts.Path, ts.PathSatisfaction π φ
+      | ⬝∃ φ             => ∃ π : ts.PathFrom st, ts.PathSatisfaction π.1.2 φ
+      | ⬝∀ φ             => ∀ π : ts.PathFrom st, ts.PathSatisfaction π.1.2 φ
 
   -- π ⊨ φ
-  def TS.PathSatisfaction (ts : @TS s a p) (π : ts.Path) :=
+  def TS.PathSatisfaction (ts : @TS s a p) (π : ts.PathFragment n) :=
     fun
-     | ⬝◯ Φ   => ts.StateSatisfaction Φ (π.1.2.get 1)
-     | Φ ⬝U Ψ => ∃ j, (∀ k < j, ts.StateSatisfaction Φ (π.1.2.get k)) ∧ (ts.StateSatisfaction Ψ (π.1.2.get j))
+     | ⬝◯ Φ   => ts.StateSatisfaction Φ (π.1.get 1)
+     | Φ ⬝U Ψ => ∃ j, (∀ k < j, ts.StateSatisfaction Φ (π.get k)) ∧ (ts.StateSatisfaction Ψ (π.get j))
 end
 
 -- Sat(Φ)
