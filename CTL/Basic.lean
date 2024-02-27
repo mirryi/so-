@@ -42,7 +42,7 @@ namespace Syntax
   prefix:50 "⬝∀ "  => StateFormula.all
   prefix:50 "⬝∃♢"  => StateFormula.potential -- \exists\diamondsuit
   prefix:50 "⬝∀♢"  => StateFormula.inevitable -- \forall\diamondsuit
-  prefix:50 "⬝∃■"  => StateFormula.potential -- \exists\sqb
+  prefix:50 "⬝∃■"  => StateFormula.potentialAll -- \exists\sqb
   prefix:50 "⬝∀■"  => StateFormula.inevitable -- \forall\sqb
   prefix:50 "⬝◯"   => PathFormula.next
   infixr:50 " ⬝U " => PathFormula.untl
