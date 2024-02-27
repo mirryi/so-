@@ -47,3 +47,11 @@ theorem TS.sat_iff : (ts.Satisfaction Φ) ↔ (ts.initial ⊆ ts.satSet Φ) :=
       obtain ⟨stSat, refl⟩ := sub
       rw [← refl]
       exact Subtype.property stSat
+
+@[simp]
+theorem TS.potentialAll_sat : ts.StateSatisfaction (⬝∃■Φ) st ↔ ∃π : ts.PathFrom st, ∀j, ts.StateSatisfaction Φ (π.1.2.get j) := by
+  simp [StateFormula.potentialAll, TS.StateSatisfaction, StateFormula.inevitable, TS.PathSatisfaction]
+
+@[simp]
+theorem TS.invariant_sat : ts.StateSatisfaction (⬝∀■Φ) st ↔ ∀π : ts.PathFrom st, ∀j, ts.StateSatisfaction Φ (π.1.2.get j) := by
+  simp [StateFormula.invariant, TS.StateSatisfaction, StateFormula.potential, TS.PathSatisfaction]
