@@ -4,6 +4,9 @@ import CTL.Basic
 import TS.Basic
 import TS.Path
 
+namespace CTL
+open TS
+
 variable {s a p : Type}
          (ts : @TS s a p)
          (Φ Φ₁ Φ₂ : @StateFormula p)
@@ -11,20 +14,20 @@ variable {s a p : Type}
 
 mutual
   -- s ⊨ Φ
-  def TS.StateSat (ts : @TS s a p) :=
+  def StateSat (ts : @TS s a p) :=
     fun Φ st => match Φ with
       | StateFormula.top => True
       | ⬝a               => a ∈ ts.label st
-      | ⬝¬Φ              => ¬(ts.StateSat Φ st)
-      | Φ₁ ⬝∧ Φ₂         => (ts.StateSat Φ₁ st) ∧ (ts.StateSat Φ₂ st)
-      | ⬝∃ φ             => ∃ π : ts.PathFrom st, ts.PathSat π.1.2 φ
-      | ⬝∀ φ             => ∀ π : ts.PathFrom st, ts.PathSat π.1.2 φ
+      | ⬝¬Φ              => ¬(StateSat ts Φ st)
+      | Φ₁ ⬝∧ Φ₂         => (StateSat ts Φ₁ st) ∧ (StateSat ts Φ₂ st)
+      | ⬝∃ φ             => ∃ π : PathFragment.From st, PathSat ts π.1.2 φ
+      | ⬝∀ φ             => ∀ π : PathFragment.From st, PathSat ts π.1.2 φ
 
   -- π ⊨ φ
-  def TS.PathSat (ts : @TS s a p) (π : ts.PathFragment n) :=
+  def PathSat (ts : @TS s a p) (π : ts.PathFragment n) :=
     fun
-     | ⬝◯ Φ   => ts.StateSat Φ (π.1.get 1)
-     | Φ ⬝U Ψ => ∃ j, (∀ k < j, ts.StateSat Φ (π.get k)) ∧ (ts.StateSat Ψ (π.get j))
+     | ⬝◯ Φ   => StateSat ts Φ (π.get ⟨1, _⟩)
+     | Φ ⬝U Ψ => ∃ j : FinWithInf n.succ, (∀ k : FinWithInf ↑j, StateSat ts Φ (π.get k)) ∧ (StateSat ts Ψ (π.get j))
 end
 
 -- Sat(Φ)
@@ -55,3 +58,4 @@ theorem TS.StateSat.potentialAll_def : ts.StateSat (⬝∃■Φ) st ↔ ∃π : 
 @[simp]
 theorem TS.StateSat.invariant_def : ts.StateSat (⬝∀■Φ) st ↔ ∀π : ts.PathFrom st, ∀j, ts.StateSat Φ (π.1.2.get j) := by
   simp [StateFormula.invariant, TS.StateSat, StateFormula.potential, TS.PathSat]
+end CTL

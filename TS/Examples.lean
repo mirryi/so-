@@ -1,5 +1,6 @@
 import TS.Basic
 
+namespace TS.Examples
 -- Example 2.2 Beverage Vending Machine
 section
   inductive State where
@@ -51,3 +52,4 @@ section
           | ⟨_, _⟩ => ∅
     }
 end
+end TS.Examples

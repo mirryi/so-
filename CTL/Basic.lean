@@ -1,5 +1,6 @@
 variable {P : Type}
 
+namespace CTL
 mutual
   inductive StateFormula where
     | top   : StateFormula
@@ -14,21 +15,22 @@ mutual
     | untl : StateFormula -> StateFormula -> PathFormula
 end
 
-open StateFormula
-open PathFormula
+namespace StateFormula
+  open PathFormula
 
-variable (Φ Φ₁ Φ₂ : @StateFormula P)
+  variable (Φ Φ₁ Φ₂ : @StateFormula P)
 
-def StateFormula.bot  : @StateFormula P := neg top
-def StateFormula.disj := neg (conj (neg Φ₁) (neg Φ₂)) -- ⬝¬(⬝¬Φ₁ ⬝∧ ⬝¬Φ₂)
-def StateFormula.impl := disj (neg Φ₁) Φ₂  -- ⬝¬Φ₁ ⬝∨ Φ₂
-def StateFormula.iff  := conj (impl Φ₁ Φ₂) (impl Φ₂ Φ₁)  -- (Φ₁ ⬝→ Φ₂) ⬝∧ (Φ₂ ⬝→ Φ₁)
-def StateFormula.xor  := disj (conj Φ₁ (neg Φ₂)) (conj Φ₂ (neg Φ₁)) -- (Φ₁ ⬝∧ ⬝¬Φ₂) ⬝∨ (Φ₂ ⬝∧ ⬝¬Φ₁)
+  def bot  : @StateFormula P := neg top
+  def disj := neg (conj (neg Φ₁) (neg Φ₂)) -- ⬝¬(⬝¬Φ₁ ⬝∧ ⬝¬Φ₂)
+  def impl := disj (neg Φ₁) Φ₂  -- ⬝¬Φ₁ ⬝∨ Φ₂
+  def iff  := conj (impl Φ₁ Φ₂) (impl Φ₂ Φ₁)  -- (Φ₁ ⬝→ Φ₂) ⬝∧ (Φ₂ ⬝→ Φ₁)
+  def xor  := disj (conj Φ₁ (neg Φ₂)) (conj Φ₂ (neg Φ₁)) -- (Φ₁ ⬝∧ ⬝¬Φ₂) ⬝∨ (Φ₂ ⬝∧ ⬝¬Φ₁)
 
-def StateFormula.potential    := exist (untl top Φ)
-def StateFormula.inevitable   := all (untl top Φ)
-def StateFormula.potentialAll := neg (inevitable (neg Φ))
-def StateFormula.invariant    := neg (potential (neg Φ))
+  def potential    := exist (untl top Φ)
+  def inevitable   := all (untl top Φ)
+  def potentialAll := neg (inevitable (neg Φ))
+  def invariant    := neg (potential (neg Φ))
+end StateFormula
 
 namespace Syntax
   prefix:80 "⬝"    => StateFormula.prop
@@ -47,3 +49,4 @@ namespace Syntax
   prefix:50 "⬝◯"   => PathFormula.next
   infixr:50 " ⬝U " => PathFormula.untl
 end Syntax
+end CTL
