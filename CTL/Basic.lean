@@ -33,6 +33,7 @@ namespace StateFormula
 end StateFormula
 
 namespace Syntax
+  notation  "⬝⊤"   => StateFormula.top
   prefix:80 "⬝"    => StateFormula.prop
   prefix:75 "⬝¬"   => StateFormula.neg
   infixl:65 " ⬝∧ " => StateFormula.conj
