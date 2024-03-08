@@ -10,13 +10,13 @@ def val : EFin n → ℕ
   | .fin i _ => i
   | .inf i   => i
 
+attribute [coe] EFin.val
+
 @[inline]
 def lt (i : EFin n) : i.val < n :=
   match i with
   | .fin _ lt => WithTop.coe_lt_coe.2 lt
   | .inf i    => WithTop.coe_lt_top i
-
-attribute [coe] EFin.val
 
 def succ : EFin n → EFin (Order.succ n)
   | .fin i lt => fin i.succ (Nat.succ_lt_succ lt)
@@ -35,5 +35,11 @@ def castLT {m : ℕ} {n : ℕ∞} (h : m < n) (i : EFin m) : EFin n :=
 @[inline]
 def castLT' {m n : ℕ} (i : EFin m) (h : i.val < n) : EFin n :=
   match i with | .fin i _ => (fin i h : EFin n)
+
+instance : LT (EFin n) where
+  lt i j := LT.lt i.val j.val
+
+instance : LE (EFin n) where
+  le i j := LE.le i.val j.val
 
 end EFin
