@@ -9,10 +9,10 @@ namespace TS
 variable {s a p : Type}
 
 namespace PathFragment
-
   structure Finite (ts : @TS s a p) (n : ℕ) where
-    states  : Vector s n.succ
-    valid   : ∀j : Fin n, states.get j.succ ∈ ts.post (states.get j)
+    states   : Vector s n.succ
+    valid    : ∀j : Fin n, states.get j.succ ∈ ts.post (states.get j)
+    atLeast1 : 0 < n
 
   structure Infinite (ts : @TS s a p) where
     states : Stream' s
@@ -36,6 +36,7 @@ namespace PathFragment
     def last  := πf.states.last
     def get (j : Fin n.succ) :=
       πf.states.get j
+    def second := πf.get ⟨1, Nat.succ_lt_succ πf.atLeast1⟩
 
     def Initial := πf.first ∈ ts.initial
     def Maximal := ts.Terminal πf.last
@@ -49,10 +50,11 @@ namespace PathFragment
 
     def first := πi.states.head
     def get := πi.states.get
+    def second := πi.get 1
 
     def Initial := πi.first ∈ ts.initial
 
-    def From (st : s) := { πi : Infinite ts // πi.first = st }
+    def From (ts : @TS s a p) (st : s) := { πi : Infinite ts // πi.first = st }
   end Infinite
 
   variable {n : ℕ∞} (π : ts.PathFragment n)
@@ -70,14 +72,18 @@ namespace PathFragment
     match π with
       | .finite _ πf => some πf.last
       | .infinite _  => none
-  def get (j : EFin (Order.succ n)) := by
+  def get (i : EFin (Order.succ n)) := by
     cases π with
       | finite n πf =>
-        cases j with
-        | @fin n _ lt => exact πf.get ⟨n, lt⟩
+        cases i with
+        | fin i lt => exact πf.get ⟨i, lt⟩
       | infinite πi =>
-        cases j with
-        | inf n => exact πi.get n
+        cases i with
+        | inf i => exact πi.get i
+  def second :=
+    match π with
+      | .finite _ πf => πf.second
+      | .infinite πi => πi.second
 
   def Initial :=
     match π with
@@ -88,6 +94,6 @@ namespace PathFragment
       | .finite _ πf => πf.Maximal
       | .infinite πi => True
 
-  def From (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
+  def From (ts : @TS s a p) (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
 end PathFragment
 end TS
