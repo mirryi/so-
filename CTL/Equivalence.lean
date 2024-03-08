@@ -19,23 +19,58 @@ def Equiv' :=
 @[simp]
 theorem equiv'_of_equiv : Equiv Φ Ψ → Equiv' Φ Ψ := by
   simp [Equiv, Equiv']
-  intro h s a ts
+  intro h _ _ _
   rewrite [h]
   trivial
 
 @[simp]
-theorem equiv_and_congr (h₁ : Equiv Φ₁ Φ₁') (h₂ : Equiv Φ₂ Φ₂') : Equiv (Φ₁ ⬝∧ Φ₂) (Φ₁' ⬝∧ Φ₂') := by
+theorem equiv_conj_congr (h₁ : Equiv Φ₁ Φ₁') (h₂ : Equiv Φ₂ Φ₂') : Equiv (Φ₁ ⬝∧ Φ₂) (Φ₁' ⬝∧ Φ₂') := by
   simp [Equiv, satStateSet, SatState, StateSat, Set.ext_iff] at *
-  intros s a ts st
+  intros _ _ _ _
   constructor
-  . rintro ⟨sat₁, sat₂⟩
-    constructor
-    . exact (h₁ st).1 sat₁
-    . exact (h₂ st).1 sat₂
-  . rintro ⟨sat₁, sat₂⟩
-    constructor
-    . exact (h₁ st).2 sat₁
-    . exact (h₂ st).2 sat₂
+  . rintro ⟨sat₁, sat₂⟩; constructor; exact (h₁ _).1 sat₁; exact (h₂ _).1 sat₂
+  . rintro ⟨sat₁, sat₂⟩; constructor; exact (h₁ _).2 sat₁; exact (h₂ _).2 sat₂
+
+@[simp]
+theorem equiv_neg_congr (h : Equiv Φ Φ') : Equiv (⬝¬Φ) (⬝¬Φ') := by
+  simp [Equiv, satStateSet, SatState, StateSat, Set.ext_iff] at *
+  intros _ _ _ _
+  constructor
+  . rintro negSat sat; exact negSat ((h _).2 sat)
+  . rintro negSat sat; exact negSat ((h _).1 sat)
+
+@[simp]
+theorem equiv_exist_next_congr (h : Equiv Φ Φ') : Equiv (⬝∃⬝◯Φ) (⬝∃⬝◯Φ') := by
+  simp [Equiv, satStateSet, SatState, StateSat, PathSat, Set.ext_iff] at *
+  intros _ _ _ _
+  constructor
+  . rintro ⟨π, sat⟩; exact ⟨π, (h _).1 sat⟩
+  . rintro ⟨π, sat⟩; exact ⟨π, (h _).2 sat⟩
+
+@[simp]
+theorem equiv_exist_untl_congr (h₁ : Equiv Φ Φ') (h₂ : Equiv Ψ Ψ') : Equiv (⬝∃(Φ ⬝U Ψ)) (⬝∃(Φ' ⬝U Ψ')) := by
+  simp [Equiv, satStateSet, SatState, StateSat, PathSat, Set.ext_iff] at *
+  intros _ _ _ _
+  constructor
+  . rintro ⟨π, j, ⟨satJ, satK⟩⟩; exact ⟨π, j, ⟨(h₂ _).1 satJ, fun k => (h₁ _).1 (satK k)⟩⟩
+  . rintro ⟨π, j, ⟨satJ, satK⟩⟩; exact ⟨π, j, ⟨(h₂ _).2 satJ, fun k => (h₁ _).2 (satK k)⟩⟩
+
+@[simp]
+theorem equiv_all_next_congr (h : Equiv Φ Φ') : Equiv (⬝∀⬝◯Φ) (⬝∀⬝◯Φ') := by
+  simp [Equiv, satStateSet, SatState, StateSat, PathSat, Set.ext_iff] at *
+  intros _ _ _ _
+  constructor
+  . rintro sat π; rw [← h]; exact sat π
+  . rintro sat π; rw [h]  ; exact sat π
+  done
+
+@[simp]
+theorem equiv_all_untl_congr (h₁ : Equiv Φ Φ') (h₂ : Equiv Ψ Ψ') : Equiv (⬝∀(Φ ⬝U Ψ)) (⬝∀(Φ' ⬝U Ψ')) := by
+  simp [Equiv, satStateSet, SatState, StateSat, PathSat, Set.ext_iff] at *
+  intros _ _ _ _
+  constructor
+  . rintro sat π; obtain ⟨j, ⟨satJ, satK⟩⟩ := sat π; exact ⟨j, ⟨(h₂ _).1 satJ, fun k => (h₁ _).1 (satK k)⟩⟩
+  . rintro sat π; obtain ⟨j, ⟨satJ, satK⟩⟩ := sat π; exact ⟨j, ⟨(h₂ _).2 satJ, fun k => (h₁ _).2 (satK k)⟩⟩
 
 theorem all_next_duality : Equiv (⬝∀⬝◯Φ) (⬝¬(⬝∃⬝◯⬝¬Φ)) := by
   simp [Equiv, satStateSet, SatState, StateSat, PathSat]
