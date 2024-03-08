@@ -38,21 +38,19 @@ def satStateSet := @Set.range s (SatState ts Φ) Subtype.val
 -- TS ⊨ Φ
 def Sat := ∀ st ∈ ts.initial, StateSat ts Φ st
 
-namespace Sat
-  @[simp]
-  theorem Sat.subset_iff : (Sat ts Φ) ↔ (ts.initial ⊆ satStateSet ts Φ) :=
-    by
-      apply Iff.intro
-      . intro sat st mem
-        exact Set.mem_range_self (⟨st, sat st mem⟩ : SatState ts Φ)
-      . intro sub st mem
-        specialize sub mem
-        unfold satStateSet at sub
-        rw [Set.mem_range] at sub
-        obtain ⟨stSat, refl⟩ := sub
-        rw [← refl]
-        exact Subtype.property stSat
-end Sat
+@[simp]
+theorem Sat_iff_subset : (Sat ts Φ) ↔ (ts.initial ⊆ satStateSet ts Φ) :=
+  by
+    apply Iff.intro
+    . intro sat st mem
+      exact Set.mem_range_self (⟨st, sat st mem⟩ : SatState ts Φ)
+    . intro sub st mem
+      specialize sub mem
+      unfold satStateSet at sub
+      rw [Set.mem_range] at sub
+      obtain ⟨stSat, refl⟩ := sub
+      rw [← refl]
+      exact Subtype.property stSat
 
 namespace StateSat
   @[simp]
