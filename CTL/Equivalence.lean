@@ -7,18 +7,35 @@ variable {p : Type}
          (Φ Ψ : @StateFormula p)
 
 -- Sat(Φ) = Sat(Ψ)
+@[simp]
 def Equiv :=
   ∀{s a : Type} , ∀{ts : @TS s a p}, satStateSet ts Φ = satStateSet ts Ψ
+
 -- TS ⊨ Φ ↔ TS ⊨ Ψ
+@[simp]
 def Equiv' :=
   ∀{s a : Type} , ∀{ts : @TS s a p}, Sat ts Φ ↔ Sat ts Ψ
 
 @[simp]
-theorem Equiv_Equiv' : Equiv Φ Ψ → Equiv' Φ Ψ := by
+theorem equiv'_of_equiv : Equiv Φ Ψ → Equiv' Φ Ψ := by
   simp [Equiv, Equiv']
   intro h s a ts
   rewrite [h]
   trivial
+
+@[simp]
+theorem equiv_and_congr (h₁ : Equiv Φ₁ Φ₁') (h₂ : Equiv Φ₂ Φ₂') : Equiv (Φ₁ ⬝∧ Φ₂) (Φ₁' ⬝∧ Φ₂') := by
+  simp [Equiv, satStateSet, SatState, StateSat, Set.ext_iff] at *
+  intros s a ts st
+  constructor
+  . rintro ⟨sat₁, sat₂⟩
+    constructor
+    . exact (h₁ st).1 sat₁
+    . exact (h₂ st).1 sat₂
+  . rintro ⟨sat₁, sat₂⟩
+    constructor
+    . exact (h₁ st).2 sat₁
+    . exact (h₂ st).2 sat₂
 
 theorem all_next_duality : Equiv (⬝∀⬝◯Φ) (⬝¬(⬝∃⬝◯⬝¬Φ)) := by
   simp [Equiv, satStateSet, SatState, StateSat, PathSat]
