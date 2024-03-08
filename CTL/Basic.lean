@@ -1,26 +1,26 @@
-variable {P : Type}
+variable {p : Type}
 
 namespace CTL
 mutual
   inductive StateFormula where
     | top   : StateFormula
-    | prop  : P            -> StateFormula
-    | conj  : StateFormula -> StateFormula -> StateFormula
-    | neg   : StateFormula -> StateFormula
-    | exist : PathFormula  -> StateFormula
-    | all   : PathFormula  -> StateFormula
+    | prop  : p            → StateFormula
+    | conj  : StateFormula → StateFormula → StateFormula
+    | neg   : StateFormula → StateFormula
+    | exist : PathFormula  → StateFormula
+    | all   : PathFormula  → StateFormula
 
   inductive PathFormula where
-    | next : StateFormula -> PathFormula
-    | untl : StateFormula -> StateFormula -> PathFormula
+    | next : StateFormula → PathFormula
+    | untl : StateFormula → StateFormula → PathFormula
 end
 
 namespace StateFormula
   open PathFormula
 
-  variable (Φ Φ₁ Φ₂ : @StateFormula P)
+  variable (Φ Φ₁ Φ₂ : @StateFormula p)
 
-  def bot  : @StateFormula P := neg top
+  def bot  : @StateFormula p := neg top
   def disj := neg (conj (neg Φ₁) (neg Φ₂)) -- ⬝¬(⬝¬Φ₁ ⬝∧ ⬝¬Φ₂)
   def impl := disj (neg Φ₁) Φ₂  -- ⬝¬Φ₁ ⬝∨ Φ₂
   def iff  := conj (impl Φ₁ Φ₂) (impl Φ₂ Φ₁)  -- (Φ₁ ⬝→ Φ₂) ⬝∧ (Φ₂ ⬝→ Φ₁)
