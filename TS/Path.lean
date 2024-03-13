@@ -11,7 +11,7 @@ variable {s a p : Type}
 namespace PathFragment
   structure Finite (ts : @TS s a p) (n : ℕ) where
     states   : Vector s n.succ
-    valid    : ∀j : Fin n, states.get j.succ ∈ ts.post (states.get j)
+    valid    : ∀j : Fin n, states.get j.succ ∈ ts.post (states.get j.castSucc)
     atLeast1 : 0 < n
 
   structure Infinite (ts : @TS s a p) where
@@ -95,5 +95,18 @@ namespace PathFragment
       | .infinite πi => True
 
   def From (ts : @TS s a p) (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
+
+  theorem valid {j : EFin n} : π.get j.succ ∈ ts.post (π.get j.castSucc) := by
+    cases π with
+    | finite n πf =>
+      cases j with
+      | fin j lt =>
+        simp [EFin.succ, EFin.castSucc, PathFragment.get, Finite.get]
+        apply πf.valid ⟨j, lt⟩
+    | infinite πi =>
+      cases j with
+      | inf j =>
+        simp [EFin.succ, EFin.castSucc, PathFragment.get, Infinite.get]
+        exact πi.valid j
 end PathFragment
 end TS
