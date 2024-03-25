@@ -1,5 +1,3 @@
-import Mathlib.Data.Set.Functor
-
 import CTL.Basic
 import TS.Basic
 import TS.Path

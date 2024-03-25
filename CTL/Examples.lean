@@ -1,4 +1,6 @@
+import TS.Examples
 import CTL.Basic
+import CTL.Satisfaction
 
 namespace CTL.Examples
 open StateFormula
@@ -25,4 +27,11 @@ section
   #check ⬝∀■(⬝yellow ⬝∨ (⬝∀⬝◯⬝¬⬝red))
   #check ⬝∀■⬝∀♢⬝green
 end
+
+section
+  open TS.Examples.CokeMachine
+
+  #eval CTL.Sat coke_machine ⬝⊤
+end
+
 end CTL.Examples

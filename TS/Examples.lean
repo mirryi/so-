@@ -2,7 +2,7 @@ import TS.Basic
 
 namespace TS.Examples
 -- Example 2.2 Beverage Vending Machine
-section
+namespace CokeMachine
   inductive State where
     | Pay | Select | Soda | Beer
   inductive Action where
@@ -30,7 +30,9 @@ section
           | Soda | Beer => {Paid, Drink}
       : TS
     }
+end CokeMachine
 
+section
   def state := {s : String // s ∈ ({"Pay", "Select", "Soda", "Beer"} : Set String)}
   def action := {s : String // s ∈ ({"InsertCoin", "GetSoda", "GetBeer", "Internal"} : Set String)}
   def p := {s : String // s ∈ ({"Paid", "Drink"} : Set String)}

@@ -99,7 +99,20 @@ theorem potential_duality : Equiv (⬝∃♢Φ) (⬝¬(⬝∀■⬝¬Φ)) := by
   simp [Equiv, satStateSet, SatState, StateSat, PathSat, StateFormula.potential, PathFormula.untl]
 
 theorem all_untl_duality : Equiv (⬝∀(Φ ⬝U Ψ)) (⬝¬(⬝∃(⬝¬Ψ ⬝U (⬝¬Φ ⬝∧ ⬝¬Ψ))) ⬝∧ ⬝¬(⬝∃■⬝¬Ψ)) := by
-  sorry
+  simp [Equiv, satStateSet, SatState, StateSat, PathSat, Set.ext_iff] at *
+  intros _ _ _ _
+  constructor
+  . rintro sat
+    constructor
+    . rintro π j negSatΦ negSatΨ
+      obtain ⟨a, ⟨satΨ, satΦ⟩⟩ := sat π
+      sorry
+    . rintro π
+      obtain ⟨_, ⟨_, _⟩⟩ := sat π
+      constructor <;> assumption
+  . rintro ⟨negSat, satΨ⟩ π
+    obtain ⟨j, satΨ'⟩ := satΨ π
+    exact ⟨j, ⟨satΨ', fun k => _⟩⟩
 
 theorem all_untl_expansion : Equiv (⬝∀(Φ ⬝U Ψ)) (Ψ ⬝∨ (Φ ⬝∧ (⬝∀⬝◯⬝∀(Φ ⬝U Ψ)))) := by
   -- simp [Equiv, satStateSet, SatState, StateSat, PathSat, StateFormula.disj]
