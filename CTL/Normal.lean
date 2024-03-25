@@ -19,32 +19,38 @@ def isENF : @StateFormula p → Prop
 
 def ENF := { Φ : @StateFormula p // Φ.isENF }
 
-theorem enf_exists : (Φ : @StateFormula p) → { Φ' : @ENF p // Equiv Φ Φ'.1 }
-  | ⬝⊤ => ⟨⟨⬝⊤, by simp⟩, by simp⟩
-  | ⬝a => ⟨⟨⬝a, by simp⟩, by simp⟩
-  | Φ₁ ⬝∧ Φ₂ => 
-    let ⟨⟨Φ₁, h₁⟩, eq₁⟩ := enf_exists Φ₁
-    let ⟨⟨Φ₂, h2⟩, eq₂⟩ := enf_exists Φ₂
-    ⟨⟨_, by simp; constructor <;> assumption⟩, Equiv.conj_congr eq₁ eq₂⟩
-  | ⬝¬Φ => 
-    let ⟨⟨Φ, h⟩, eq⟩ := enf_exists Φ
-    ⟨⟨_, by simp; exact neg_isENF _ h⟩, Equiv.neg_congr eq⟩
-  | ⬝∃⬝◯Φ =>
-    let ⟨⟨Φ, h⟩, eq⟩ := enf_exists Φ
-    ⟨⟨_, by simp; assumption⟩, Equiv.exist_next_congr eq⟩
-  | ⬝∃(Φ ⬝U Ψ) => 
-    let ⟨⟨Φ, h₁⟩, eq₁⟩ := enf_exists Φ
-    let ⟨⟨Ψ, h₂⟩, eq₂⟩ := enf_exists Ψ
-    ⟨⟨_, by simp; constructor <;> assumption⟩, Equiv.exist_untl_congr eq₁ eq₂⟩
-  | ⬝∀⬝◯Φ =>
-    let ⟨⟨Φ, h⟩, eq⟩ := enf_exists Φ
-    ⟨⟨_, by simp; exact neg_isENF _ h⟩, Trans.trans (Equiv.all_next_congr eq) Equiv.all_next_duality⟩
+-- def enf : (Φ : @StateFormula p) → { Φ' : @ENF p // Equiv Φ Φ'.1 }
+@[simp]
+def enf : (Φ : @StateFormula p) → @StateFormula p
+  | ⬝⊤ => ⬝⊤
+  | ⬝a => ⬝a
+  | Φ₁ ⬝∧ Φ₂ => (enf Φ₁) ⬝∧ (enf Φ₂)
+  | ⬝¬Φ => ⬝¬(enf Φ)
+  | ⬝∃⬝◯Φ => ⬝∃⬝◯(enf Φ)
+  | ⬝∃(Φ ⬝U Ψ) => ⬝∃((enf Φ) ⬝U (enf Ψ))
+  | ⬝∀⬝◯Φ => ⬝¬(⬝∃⬝◯⬝¬(enf Φ))
   | ⬝∀(Φ ⬝U Ψ) =>
-    let ⟨⟨Φ, h₁⟩, eq₁⟩ := enf_exists Φ
-    let ⟨⟨Ψ, h₂⟩, eq₂⟩ := enf_exists Ψ
-    ⟨⟨_, by simp; exact ⟨⟨neg_isENF _ h₂, neg_isENF _ h₁, neg_isENF _ h₂⟩,
-                         by simp [isENF, StateFormula.potentialAll, StateFormula.inevitable]; exact neg_isENF _ h₂⟩
-    ⟩, Trans.trans (Equiv.all_untl_congr eq₁ eq₂) Equiv.all_untl_duality⟩
+    let Φ := enf Φ
+    let Ψ := enf Ψ
+    ⬝¬(⬝∃(⬝¬Ψ ⬝U (⬝¬Φ ⬝∧ ⬝¬Ψ))) ⬝∧ ⬝¬(⬝∃■⬝¬Ψ)
+
+theorem enf_def : (Φ : @StateFormula p) → (enf Φ).isENF
+  | ⬝⊤ => by simp
+  | ⬝a => by simp
+  | Φ₁ ⬝∧ Φ₂ => by simp; constructor <;> apply enf_def
+  | ⬝¬Φ => by simp; exact neg_isENF _ (enf_def Φ)
+  | ⬝∃⬝◯Φ => by simp; apply enf_def
+  | ⬝∃(Φ ⬝U Ψ) => by simp; constructor <;> apply enf_def
+  | ⬝∀⬝◯Φ => by simp; exact neg_isENF _ (enf_def Φ)
+  | ⬝∀(Φ ⬝U Ψ) => by
+      simp
+      constructor
+      . constructor
+        . exact neg_isENF _ (enf_def Ψ)
+        . constructor
+          . exact neg_isENF _ (enf_def Φ)
+          . exact neg_isENF _ (enf_def Ψ)
+      . simp [isENF, StateFormula.potentialAll, StateFormula.inevitable]; exact neg_isENF _ (enf_def Ψ)
 where
   neg_isENF (Φ : @StateFormula p) (h : Φ.isENF) : (⬝¬Φ).isENF := by
     unfold isENF
@@ -55,6 +61,16 @@ where
     | neg => simp; exact h
     | exist => simp; exact h
     | all => unfold isENF at h; apply False.elim; exact h
+
+theorem enf_equiv : (Φ : @StateFormula p) → Equiv Φ (enf Φ)
+  | ⬝⊤ => by simp
+  | ⬝a => by simp
+  | Φ₁ ⬝∧ Φ₂ => by simp; apply Equiv.conj_congr <;> apply enf_equiv
+  | ⬝¬Φ => by simp; apply Equiv.neg_congr; apply enf_equiv
+  | ⬝∃⬝◯Φ => by simp; apply Equiv.exist_next_congr; apply enf_equiv
+  | ⬝∃(Φ ⬝U Ψ) => by simp; apply Equiv.exist_untl_congr <;> apply enf_equiv
+  | ⬝∀⬝◯Φ => by simp; exact Trans.trans (Equiv.all_next_congr (enf_equiv Φ)) Equiv.all_next_duality
+  | ⬝∀(Φ ⬝U Ψ) => by simp; exact Trans.trans (Equiv.all_untl_congr (enf_equiv Φ) (enf_equiv Ψ)) Equiv.all_untl_duality
 
 end StateFormula
 end CTL
