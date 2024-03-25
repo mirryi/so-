@@ -31,7 +31,7 @@ end
 section
   open TS.Examples.CokeMachine
 
-  #eval CTL.Sat coke_machine ⬝⊤
+  -- #eval CTL.Sat coke_machine ⬝⊤
 end
 
 end CTL.Examples

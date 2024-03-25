@@ -19,7 +19,6 @@ def isENF : @StateFormula p → Prop
 
 def ENF := { Φ : @StateFormula p // Φ.isENF }
 
--- def enf : (Φ : @StateFormula p) → { Φ' : @ENF p // Equiv Φ Φ'.1 }
 @[simp]
 def enf : (Φ : @StateFormula p) → @StateFormula p
   | ⬝⊤ => ⬝⊤

@@ -112,7 +112,7 @@ theorem all_untl_duality : Equiv (⬝∀(Φ ⬝U Ψ)) (⬝¬(⬝∃(⬝¬Ψ ⬝U
       constructor <;> assumption
   . rintro ⟨negSat, satΨ⟩ π
     obtain ⟨j, satΨ'⟩ := satΨ π
-    exact ⟨j, ⟨satΨ', fun k => _⟩⟩
+    exact ⟨j, ⟨satΨ', fun k => sorry⟩⟩
 
 theorem all_untl_expansion : Equiv (⬝∀(Φ ⬝U Ψ)) (Ψ ⬝∨ (Φ ⬝∧ (⬝∀⬝◯⬝∀(Φ ⬝U Ψ)))) := by
   -- simp [Equiv, satStateSet, SatState, StateSat, PathSat, StateFormula.disj]

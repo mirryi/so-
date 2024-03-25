@@ -1,4 +1,5 @@
 import Mathlib.Data.Vector.Basic
+import Mathlib.Data.Vector.Snoc
 import Mathlib.Data.Stream.Defs
 import Mathlib.Data.ENat.Basic
 
@@ -28,6 +29,44 @@ namespace PathFragment
 
   namespace Finite
     variable (πf : Finite ts n)
+
+    theorem not_lt_succ_lt (h : ¬n.succ < m.succ) : ¬n < m:=
+      match n, m with
+      | .zero, .zero => _
+      | .zero, .succ m => _
+      | .succ n, .zero => _
+      | .succ n, .succ m => _
+
+    theorem lt_succ_not_lt_eq (h : n < m.succ) (h' : ¬n < m) : n = m :=
+      match n, m with
+      | .zero, .zero => by trivial
+      | .succ n, .succ m =>
+        _
+
+    def snoc (st : s) :=
+      {
+        states := πf.states.snoc st
+        valid  := by
+          rintro ⟨j, lt⟩
+          if h : j < n then
+            done
+          else
+            done 
+        atLeast1 := _
+      : Finite ts n.succ }
+
+    def base (st₁ st₂ : s) (mem : st₂ ∈ ts.post st₁) :=
+      { states := st₁ ::ᵥ st₂ ::ᵥ Vector.nil,
+        valid  := by
+          rintro ⟨j, lt⟩
+          cases j with
+          | zero   => exact mem
+          | succ n => apply False.elim
+                      apply Nat.not_lt_zero n
+                      apply Nat.succ_lt_succ_iff.1
+                      assumption
+        atLeast1 := Nat.zero_lt_one
+      : Finite ts 1 }
 
     def length :=
       πf.states.length
@@ -96,7 +135,7 @@ namespace PathFragment
 
   def From (ts : @TS s a p) (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
 
-  theorem valid {j : EFin n} : π.get j.succ ∈ ts.post (π.get j.castSucc) := by
+  def valid {j : EFin n} : π.get j.succ ∈ ts.post (π.get j.castSucc) := by
     cases π with
     | finite n πf =>
       cases j with
@@ -108,5 +147,20 @@ namespace PathFragment
       | inf j =>
         simp [EFin.succ, EFin.castSucc, PathFragment.get, Infinite.get]
         exact πi.valid j
+
+  def atLeast1 : 0 < n := by
+    cases π with
+    | finite n πf => apply WithTop.some_lt_some.2; exact πf.atLeast1
+    | infinite πi => exact WithTop.some_lt_none 0
+
+  theorem head_eq_get_0 {n : ℕ} {v : Vector α n.succ} : v.head = v.get 0 := by simp
+  theorem second_mem_post_first : π.second ∈ ts.post π.first := by
+    cases π with
+    | finite n πf =>
+      simp [get, first, second, Finite.get, Finite.second, Finite.first]
+      rw [head_eq_get_0]
+      exact πf.valid ⟨0, πf.atLeast1⟩
+    | infinite πi =>
+      exact πi.valid _
 end PathFragment
 end TS

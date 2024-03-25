@@ -6,6 +6,12 @@ inductive EFin : ℕ∞ → Type where
 
 namespace EFin
 @[inline]
+def mk {n : ℕ∞} (i : ℕ) (lt : i < n) : EFin n :=
+  match n with
+  | ⊤      => .inf i
+  | some _ => .fin i (WithTop.some_lt_some.1 lt)
+
+@[inline]
 def val : EFin n → ℕ
   | .fin i _ => i
   | .inf i   => i
@@ -42,6 +48,18 @@ def castSucc (i : EFin n) : EFin (Order.succ n) :=
   match i with
   | .fin i lt => fin i (Nat.lt_succ_of_lt lt)
   | .inf i    => inf i
+
+@[inline]
+def zero : EFin (Order.succ n) :=
+  match n with
+  | ⊤      => .inf 0
+  | some _ => .fin 0 (Nat.zero_lt_succ _)
+
+@[inline]
+def zero' (h : 0 < n) : EFin n :=
+  match n with
+  | ⊤      => .inf 0
+  | some _ => .fin 0 (WithTop.some_lt_some.1 h)
 
 instance : LT (EFin n) where
   lt i j := LT.lt i.val j.val
