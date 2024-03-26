@@ -28,9 +28,18 @@ theorem exist_next_satStateSet_def : (satStateSet ts (⬝∃⬝◯Φ.1) : Set s)
     exact ⟨π.second, ⟨π.second_mem_post_first, sat⟩⟩
   . rintro ⟨st', ⟨memPost, sat⟩⟩
     simp [PathSat]
+    exact ⟨_ , _⟩
 
-def computeSat (ts : @TS s a p) (Φ : @StateFormula p) : Set s :=
-  sorry
+def computeSat (ts : @TS s a p) (Φ : @StateFormula.ENF p) : Set s :=
+  match Φ.1, Φ.2 with
+  | ⬝⊤, _ => Set.univ
+  | ⬝a, _ => { st : s | a ∈ ts.label st }
+  | Φ₁ ⬝∧ Φ₂, a => computeSat ts ⟨Φ₁, Φ.2⟩ ∩ satStateSet ts Φ₂
+  | ⬝∃⬝◯Φ => { st : s | ts.post st ∩ (satStateSet ts Φ) ≠ ∅ }
+  | ⬝∃(Φ ⬝U Ψ) => _
+  | ⬝¬(⬝∀(⬝⊤ ⬝U ⬝¬Φ)) => _
+  | ⬝¬Φ => Set.univ \ satStateSet ts Φ
+  | ⬝∀φ => _
 
 theorem computerSat_def : computeSat ts Φ = satStateSet ts Φ :=
   sorry
