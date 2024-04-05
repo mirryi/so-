@@ -1,5 +1,4 @@
 import Mathlib.Data.Vector.Basic
-import Mathlib.Data.Vector.Snoc
 import Mathlib.Data.Stream.Defs
 import Mathlib.Data.ENat.Basic
 
