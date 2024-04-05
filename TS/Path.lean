@@ -30,31 +30,6 @@ namespace PathFragment
   namespace Finite
     variable (πf : Finite ts n)
 
-    theorem not_lt_succ_lt (h : ¬n.succ < m.succ) : ¬n < m:=
-      match n, m with
-      | .zero, .zero => _
-      | .zero, .succ m => _
-      | .succ n, .zero => _
-      | .succ n, .succ m => _
-
-    theorem lt_succ_not_lt_eq (h : n < m.succ) (h' : ¬n < m) : n = m :=
-      match n, m with
-      | .zero, .zero => by trivial
-      | .succ n, .succ m =>
-        _
-
-    def snoc (st : s) :=
-      {
-        states := πf.states.snoc st
-        valid  := by
-          rintro ⟨j, lt⟩
-          if h : j < n then
-            done
-          else
-            done 
-        atLeast1 := _
-      : Finite ts n.succ }
-
     def base (st₁ st₂ : s) (mem : st₂ ∈ ts.post st₁) :=
       { states := st₁ ::ᵥ st₂ ::ᵥ Vector.nil,
         valid  := by
