@@ -20,15 +20,24 @@ namespace StateFormula
 
   variable (Φ Φ₁ Φ₂ : @StateFormula p)
 
+  @[simp]
   def bot  : @StateFormula p := neg top
+  @[simp]
   def disj := neg (conj (neg Φ₁) (neg Φ₂)) -- ⬝¬(⬝¬Φ₁ ⬝∧ ⬝¬Φ₂)
+  @[simp]
   def impl := disj (neg Φ₁) Φ₂  -- ⬝¬Φ₁ ⬝∨ Φ₂
+  @[simp]
   def iff  := conj (impl Φ₁ Φ₂) (impl Φ₂ Φ₁)  -- (Φ₁ ⬝→ Φ₂) ⬝∧ (Φ₂ ⬝→ Φ₁)
+  @[simp]
   def xor  := disj (conj Φ₁ (neg Φ₂)) (conj Φ₂ (neg Φ₁)) -- (Φ₁ ⬝∧ ⬝¬Φ₂) ⬝∨ (Φ₂ ⬝∧ ⬝¬Φ₁)
 
+  @[simp]
   def potential    := exist (untl top Φ)
+  @[simp]
   def inevitable   := all (untl top Φ)
+  @[simp]
   def potentialAll := neg (inevitable (neg Φ))
+  @[simp]
   def invariant    := neg (potential (neg Φ))
 end StateFormula
 
