@@ -1,10 +1,12 @@
+import Mathlib.Tactic.DeriveFintype
+
 import TS.Basic
 
 namespace TS.Examples
 -- Example 2.2 Beverage Vending Machine
 namespace CokeMachine
   inductive State where
-    | Pay | Select | Soda | Beer
+    | Pay | Select | Soda | Beer deriving Fintype
   inductive Action where
     | InsertCoin | GetSoda | GetBeer | Internal
   inductive P where
@@ -28,7 +30,7 @@ namespace CokeMachine
           | Pay => ∅
           | Select => {Paid}
           | Soda | Beer => {Paid, Drink}
-      : TS
+      : TS FinState Action P
     }
 end CokeMachine
 
@@ -36,7 +38,7 @@ section
   def state := {s : String // s ∈ ({"Pay", "Select", "Soda", "Beer"} : Set String)}
   def action := {s : String // s ∈ ({"InsertCoin", "GetSoda", "GetBeer", "Internal"} : Set String)}
   def p := {s : String // s ∈ ({"Paid", "Drink"} : Set String)}
-  def coke_machine_string : @TS state action p :=
+  def coke_machine_string : TS ⟨state, _⟩ action p :=
     {
       initial := {⟨"Pay", by simp⟩}
       trans :=

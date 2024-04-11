@@ -1,15 +1,15 @@
+import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Set.Defs
 import Mathlib.Data.Set.Function
 
-variable {s a p : Type}
-
-structure TS where
+structure TS (s a p : Type) [Fintype s] where
   initial : Set s
   trans   : s × a -> Set s
   label   : s -> Set p
 
 namespace TS
-  variable (ts : @TS s a p)
+  variable {inst : Fintype s}
+           (ts : TS s a p)
 
   def postOn (s : s) (τ : a) :=
     ts.trans (s, τ)

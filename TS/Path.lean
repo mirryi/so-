@@ -6,25 +6,26 @@ import TS.Basic
 import TS.EFin
 
 namespace TS
-variable {s a p : Type}
+variable {s : Σ α : Type, Fintype α}
+         {a p : Type}
 
 namespace PathFragment
-  structure Finite (ts : @TS s a p) (n : ℕ) where
+  structure Finite (ts : TS s a p) (n : ℕ) where
     states   : Vector s n.succ
     valid    : ∀j : Fin n, states.get j.succ ∈ ts.post (states.get j.castSucc)
-    atLeast1 : 0 < n
+    atLeas : 0 < n
 
-  structure Infinite (ts : @TS s a p) where
+  structure Infinite (ts : TS s a p) where
     states : Stream' s
     valid  : ∀j, states.get j.succ ∈ ts.post (states.get j)
 end PathFragment
 
-inductive PathFragment (ts : @TS s a p) : ℕ∞ -> Type where
+inductive PathFragment (ts : TS s a p) : ℕ∞ -> Type where
   | finite   : (n : ℕ) -> PathFragment.Finite ts n -> PathFragment ts n
   | infinite :            PathFragment.Infinite ts -> PathFragment ts ⊤
 
 namespace PathFragment
-  variable {ts : @TS s a p}
+  variable {ts : TS s a p}
 
   namespace Finite
     variable (πf : Finite ts n)
@@ -39,8 +40,8 @@ namespace PathFragment
                       apply Nat.not_lt_zero n
                       apply Nat.succ_lt_succ_iff.1
                       assumption
-        atLeast1 := Nat.zero_lt_one
-      : Finite ts 1 }
+        atLeas := Nat.zero_lt_one
+      : Finite ts }
 
     def length :=
       πf.states.length
@@ -49,7 +50,7 @@ namespace PathFragment
     def last  := πf.states.last
     def get (j : Fin n.succ) :=
       πf.states.get j
-    def second := πf.get ⟨1, Nat.succ_lt_succ πf.atLeast1⟩
+    def second := πf.get ⟨1, Nat.succ_lt_succ πf.atLeas⟩
 
     def Initial := πf.first ∈ ts.initial
     def Maximal := ts.Terminal πf.last
@@ -67,7 +68,7 @@ namespace PathFragment
 
     def Initial := πi.first ∈ ts.initial
 
-    def From (ts : @TS s a p) (st : s) := { πi : Infinite ts // πi.first = st }
+    def From (ts : TS s a p) (st : s) := { πi : Infinite ts // πi.first = st }
   end Infinite
 
   variable {n : ℕ∞} (π : ts.PathFragment n)
@@ -107,7 +108,7 @@ namespace PathFragment
       | .finite _ πf => πf.Maximal
       | .infinite πi => True
 
-  def From (ts : @TS s a p) (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
+  def From (ts : TS s a p) (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
 
   def valid {j : EFin n} : π.get j.succ ∈ ts.post (π.get j.castSucc) := by
     cases π with
@@ -122,9 +123,9 @@ namespace PathFragment
         simp [EFin.succ, EFin.castSucc, PathFragment.get, Infinite.get]
         exact πi.valid j
 
-  def atLeast1 : 0 < n := by
+  def atLeas : 0 < n := by
     cases π with
-    | finite n πf => apply WithTop.some_lt_some.2; exact πf.atLeast1
+    | finite n πf => apply WithTop.some_lt_some.2; exact πf.atLeas
     | infinite πi => exact WithTop.some_lt_none 0
 
   theorem head_eq_get_0 {n : ℕ} {v : Vector α n.succ} : v.head = v.get 0 := by simp
@@ -133,7 +134,7 @@ namespace PathFragment
     | finite n πf =>
       simp [get, first, second, Finite.get, Finite.second, Finite.first]
       rw [head_eq_get_0]
-      exact πf.valid ⟨0, πf.atLeast1⟩
+      exact πf.valid ⟨0, πf.atLeas⟩
     | infinite πi =>
       exact πi.valid _
 end PathFragment
