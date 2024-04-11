@@ -8,7 +8,8 @@ open TS
 
 class StateSatisfiable (p α : Type) where
   StateSat : {s a : Type}
-           → (ts : @TS s a p)
+           → {_ : Fintype s}
+           → (ts : TS s a p)
            → (st : s)
            → (Φ : α)
            → Prop
@@ -20,17 +21,17 @@ variable {p α β : Type}
          {Ψ : β}
 
 -- Sat(Φ)
-def SatState {s a : Type} (ts : @TS s a p) (Φ : α) : Type :=
+def SatState {s a : Type} {_ : Fintype s} (ts : TS s a p) (Φ : α) : Type :=
   { st : s // StateSatisfiable.StateSat ts st Φ }
-def setOfSatStates {s a : Type} (ts : @TS s a p) (Φ : α) :=
+def setOfSatStates {s a : Type} {_ : Fintype s} (ts : TS s a p) (Φ : α) :=
   @Set.range s (SatState ts Φ) Subtype.val
 
 -- TS ⊨ Φ
-def Sat {s a : Type} (ts: @TS s a p) (Φ : α) :=
+def Sat {s a : Type} {_ : Fintype s} (ts: TS s a p) (Φ : α) :=
   ∀ st ∈ ts.initial, StateSatisfiable.StateSat ts st Φ
 
 @[simp]
-theorem Sat_iff_initial_subset {s a : Type} (ts : @TS s a p) (Φ : α)
+theorem Sat_iff_initial_subset {s a : Type} {_ : Fintype s} (ts : TS s a p) (Φ : α)
   : (Sat ts Φ) ↔ (ts.initial ⊆ setOfSatStates ts Φ) :=
   by
     apply Iff.intro
@@ -48,11 +49,12 @@ theorem Sat_iff_initial_subset {s a : Type} (ts : @TS s a p) (Φ : α)
 namespace StateFormula
 variable (Φ Φ₁ Φ₂ : @StateFormula p)
          (φ φ₁ φ₂ : @PathFormula p)
+         {inst : Fintype s}
 
 mutual
   -- s ⊨ Φ
   @[simp]
-  def StateSat (ts : @TS s a p) (st : s) :=
+  def StateSat (ts : TS s a p) (st : s) :=
     fun
       | StateFormula.top => True
       | ⬝a               => a ∈ ts.label st
@@ -63,7 +65,7 @@ mutual
 
   -- π ⊨ φ
   @[simp]
-  def PathSat (ts : @TS s a p) (π : ts.PathFragment n) :=
+  def PathSat (ts : TS s a p) (π : ts.PathFragment n) :=
     fun
       | ⬝◯ Φ   => StateSat ts (π.second) Φ
       | Φ ⬝U Ψ => ∃ j : EFin (Order.succ n), (StateSat ts (π.get j) Ψ) ∧ ∀ k : EFin j.val, StateSat ts (π.get (EFin.castLT j.lt k)) Φ

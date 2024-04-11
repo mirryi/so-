@@ -12,18 +12,18 @@ variable {p α β : Type}
 -- Sat(Φ) = Sat(Ψ)
 @[simp]
 def Equiv :=
-  ∀{s a : Type} , ∀{ts : @TS s a p}, setOfSatStates ts Φ = setOfSatStates ts Ψ
+  ∀{s a : Type} {_ : Fintype s}, ∀{ts : TS s a p}, setOfSatStates ts Φ = setOfSatStates ts Ψ
 
 -- TS ⊨ Φ ↔ TS ⊨ Ψ
 @[simp]
 def Equiv' :=
-  ∀{s a : Type} , ∀{ts : @TS s a p}, Sat ts Φ ↔ Sat ts Ψ
+  ∀{s a : Type} {_ : Fintype s}, ∀{ts : TS s a p}, Sat ts Φ ↔ Sat ts Ψ
 
 namespace Equiv
 @[simp]
 theorem equiv'_of_equiv : Equiv (p := p) Φ Ψ → Equiv' (p := p) Φ Ψ := by
   simp [Equiv, Equiv']
-  intro h _ _ _
+  intro h _ _ _ _
   rewrite [h]
   trivial
 
@@ -46,7 +46,7 @@ variable {Φ Φ' Φ₁ Φ₁' Φ₂ Φ₂' Ψ Ψ' : @StateFormula p}
 @[simp]
 theorem conj_congr (h₁ : Equiv (p := p) Φ₁ Φ₁') (h₂ : Equiv (p := p) Φ₂ Φ₂') : Equiv (p := p) (Φ₁ ⬝∧ Φ₂) (Φ₁' ⬝∧ Φ₂') := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro ⟨sat₁, sat₂⟩; constructor; exact (h₁ _).1 sat₁; exact (h₂ _).1 sat₂
   . rintro ⟨sat₁, sat₂⟩; constructor; exact (h₁ _).2 sat₁; exact (h₂ _).2 sat₂
@@ -54,7 +54,7 @@ theorem conj_congr (h₁ : Equiv (p := p) Φ₁ Φ₁') (h₂ : Equiv (p := p) �
 @[simp]
 theorem neg_congr (h : Equiv (p := p) Φ Φ') : Equiv (p := p) (⬝¬Φ) (⬝¬Φ') := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro negSat sat; exact negSat ((h _).2 sat)
   . rintro negSat sat; exact negSat ((h _).1 sat)
@@ -62,7 +62,7 @@ theorem neg_congr (h : Equiv (p := p) Φ Φ') : Equiv (p := p) (⬝¬Φ) (⬝¬�
 @[simp]
 theorem exist_next_congr (h : Equiv (p := p) Φ Φ') : Equiv (p := p) (⬝∃⬝◯Φ) (⬝∃⬝◯Φ') := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro ⟨π, sat⟩; exact ⟨π, (h _).1 sat⟩
   . rintro ⟨π, sat⟩; exact ⟨π, (h _).2 sat⟩
@@ -70,7 +70,7 @@ theorem exist_next_congr (h : Equiv (p := p) Φ Φ') : Equiv (p := p) (⬝∃⬝
 @[simp]
 theorem exist_untl_congr (h₁ : Equiv (p := p) Φ Φ') (h₂ : Equiv (p := p) Ψ Ψ') : Equiv (p := p) (⬝∃(Φ ⬝U Ψ)) (⬝∃(Φ' ⬝U Ψ')) := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro ⟨π, j, ⟨satJ, satK⟩⟩; exact ⟨π, j, ⟨(h₂ _).1 satJ, fun k => (h₁ _).1 (satK k)⟩⟩
   . rintro ⟨π, j, ⟨satJ, satK⟩⟩; exact ⟨π, j, ⟨(h₂ _).2 satJ, fun k => (h₁ _).2 (satK k)⟩⟩
@@ -78,7 +78,7 @@ theorem exist_untl_congr (h₁ : Equiv (p := p) Φ Φ') (h₂ : Equiv (p := p) �
 @[simp]
 theorem all_next_congr (h : Equiv (p := p) Φ Φ') : Equiv (p := p) (⬝∀⬝◯Φ) (⬝∀⬝◯Φ') := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro sat π; rw [← h]; exact sat π
   . rintro sat π; rw [h]  ; exact sat π
@@ -87,7 +87,7 @@ theorem all_next_congr (h : Equiv (p := p) Φ Φ') : Equiv (p := p) (⬝∀⬝�
 @[simp]
 theorem all_untl_congr (h₁ : Equiv (p := p) Φ Φ') (h₂ : Equiv (p := p) Ψ Ψ') : Equiv (p := p) (⬝∀(Φ ⬝U Ψ)) (⬝∀(Φ' ⬝U Ψ')) := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro sat π; obtain ⟨j, ⟨satJ, satK⟩⟩ := sat π; exact ⟨j, ⟨(h₂ _).1 satJ, fun k => (h₁ _).1 (satK k)⟩⟩
   . rintro sat π; obtain ⟨j, ⟨satJ, satK⟩⟩ := sat π; exact ⟨j, ⟨(h₂ _).2 satJ, fun k => (h₁ _).2 (satK k)⟩⟩
@@ -106,7 +106,7 @@ theorem potential_duality : Equiv (p := p) (⬝∃♢Φ) (⬝¬(⬝∀■⬝¬Φ
 
 theorem all_untl_duality : Equiv (p := p) (⬝∀(Φ ⬝U Ψ)) (⬝¬(⬝∃(⬝¬Ψ ⬝U (⬝¬Φ ⬝∧ ⬝¬Ψ))) ⬝∧ ⬝¬(⬝∃■⬝¬Ψ)) := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, Set.ext_iff] at *
-  intros _ _ _ _
+  intros _ _ _ _ _
   constructor
   . rintro sat
     constructor

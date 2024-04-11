@@ -5,6 +5,7 @@ import TS.Path
 
 namespace CTL
 open StateFormula
+variable {inst : Fintype s}
 
 -- theorem top_satStateSet_def : setOfSatStates ts ⬝⊤ = Set.univ := by
   -- simp [Set.ext_iff, setOfSatStates, SatState, StateSat]
@@ -30,7 +31,7 @@ open StateFormula
     -- simp [PathSat]
     -- exact ⟨_ , _⟩
 
-def computeSatENF (ts : @TS s a p) (Φ : @StateFormula.ENF p) : Set s :=
+def computeSatENF (ts : TS s a p) (Φ : @StateFormula.ENF p) : Set s :=
   match Φ with
   | ENF.top => Set.univ
   | ENF.prop a => { st : s | a ∈ ts.label st }

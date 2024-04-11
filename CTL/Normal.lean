@@ -5,6 +5,7 @@ import CTL.Equivalence
 
 namespace CTL
 variable {p : Type}
+         {inst : Fintype s}
 
 namespace StateFormula
 inductive ENF where
@@ -42,7 +43,7 @@ def toFormula : (Φ : @ENF p) → @StateFormula p
   | potentialAll Φ => ⬝∃■(Φ.toFormula)
 
 @[simp]
-def StateSat (ts : @TS s a p) (st : s) (Φ : ENF) := StateFormula.StateSat ts st Φ.toFormula
+def StateSat (ts : TS s a p) (st : s) (Φ : ENF) := StateFormula.StateSat ts st Φ.toFormula
 
 instance : StateSatisfiable p (@ENF p) where
   StateSat := StateSat

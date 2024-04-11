@@ -6,8 +6,7 @@ import TS.Basic
 import TS.EFin
 
 namespace TS
-variable {s : Σ α : Type, Fintype α}
-         {a p : Type}
+variable {inst : Fintype s}
 
 namespace PathFragment
   structure Finite (ts : TS s a p) (n : ℕ) where
@@ -41,7 +40,7 @@ namespace PathFragment
                       apply Nat.succ_lt_succ_iff.1
                       assumption
         atLeas := Nat.zero_lt_one
-      : Finite ts }
+      : Finite ts 1 }
 
     def length :=
       πf.states.length
@@ -123,7 +122,7 @@ namespace PathFragment
         simp [EFin.succ, EFin.castSucc, PathFragment.get, Infinite.get]
         exact πi.valid j
 
-  def atLeas : 0 < n := by
+  def atLeast1 : 0 < n := by
     cases π with
     | finite n πf => apply WithTop.some_lt_some.2; exact πf.atLeas
     | infinite πi => exact WithTop.some_lt_none 0
