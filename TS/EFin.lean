@@ -67,4 +67,9 @@ instance : LT (EFin n) where
 instance : LE (EFin n) where
   le i j := LE.le i.val j.val
 
+@[inline]
+def toFin {n : ℕ} (i : EFin (↑n)) : Fin n := by
+  cases i with
+  | fin i lt => exact ⟨i, lt⟩
+
 end EFin
