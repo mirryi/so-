@@ -52,12 +52,12 @@ theorem ofFormula_equiv {Φ : @StateFormula p} : Equiv (p := p) Φ (ofFormula Φ
   match Φ with
   | ⬝⊤ => by simp [setOfSatStates, StateSatisfiable.StateSat]
   | ⬝a => by simp [setOfSatStates, StateSatisfiable.StateSat]
-  | Φ₁ ⬝∧ Φ₂ => by simp; apply Equiv.StateFormula.conj_congr <;> apply ofFormula_equiv
-  | ⬝¬Φ => by simp; apply Equiv.StateFormula.neg_congr; apply ofFormula_equiv
-  | ⬝∃⬝◯Φ => by simp; apply Equiv.StateFormula.exist_next_congr; apply ofFormula_equiv
-  | ⬝∃(Φ ⬝U Ψ) => by simp; apply Equiv.StateFormula.exist_untl_congr <;> apply ofFormula_equiv
-  | ⬝∀⬝◯Φ => by simp; exact Trans.trans (Equiv.StateFormula.all_next_congr ofFormula_equiv) Equiv.StateFormula.all_next_duality
-  | ⬝∀(Φ ⬝U Ψ) => by simp; exact Trans.trans (Equiv.StateFormula.all_untl_congr ofFormula_equiv ofFormula_equiv) Equiv.StateFormula.all_untl_duality
+  | Φ₁ ⬝∧ Φ₂ => by simp; apply StateFormula.conj_congr <;> apply ofFormula_equiv
+  | ⬝¬Φ => by simp; apply StateFormula.neg_congr; apply ofFormula_equiv
+  | ⬝∃⬝◯Φ => by simp; apply StateFormula.exist_next_congr; apply ofFormula_equiv
+  | ⬝∃(Φ ⬝U Ψ) => by simp; apply StateFormula.exist_untl_congr <;> apply ofFormula_equiv
+  | ⬝∀⬝◯Φ => by simp; exact Trans.trans (StateFormula.all_next_congr ofFormula_equiv) StateFormula.all_next_duality
+  | ⬝∀(Φ ⬝U Ψ) => by simp; exact Trans.trans (StateFormula.all_untl_congr ofFormula_equiv ofFormula_equiv) StateFormula.all_untl_duality
 
 end ENF
 end StateFormula

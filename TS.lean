@@ -1,5 +1,5 @@
 import «TS».EFin
 
 import «TS».Basic
-import «TS».Path
+import «TS».PathFragment
 import «TS».Examples

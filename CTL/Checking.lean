@@ -1,7 +1,7 @@
+import TS.Basic
+import TS.PathFragment
 import CTL.Basic
 import CTL.Normal
-import TS.Basic
-import TS.Path
 
 namespace CTL
 open StateFormula
