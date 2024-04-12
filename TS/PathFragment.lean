@@ -5,136 +5,105 @@ import Mathlib.Data.ENat.Basic
 import TS.Basic
 import TS.EFin
 
-namespace TS
-variable {inst : Fintype s}
+class PathFragment {μ : Type} [Model μ] (m : μ) (β : μ → Type) where
+  length   : (π : β m) → {n : ℕ∞ // Nat.zero < n}
+  get      : (π : β m) → (j : EFin (Order.succ (length π))) → Model.s μ
+  valid    : (π : β m) → (j : EFin (length π)) → get π j.succ ∈ Model.post m (get π j.castSucc)
 
 namespace PathFragment
-  structure Finite (ts : TS s a p) (n : ℕ) where
-    states   : Vector s n.succ
-    valid    : ∀j : Fin n, states.get j.succ ∈ ts.post (states.get j.castSucc)
-    atLeas : 0 < n
+  variable {μ : Type} [Model μ] {m : μ}
+           {β : μ → Type} [PathFragment m β] (π : β m)
 
-  structure Infinite (ts : TS s a p) where
-    states : Stream' s
-    valid  : ∀j, states.get j.succ ∈ ts.post (states.get j)
+  @[simp]
+  def first := get π EFin.zero
+
+  @[simp]
+  def second := by
+    cases h : (length π).val with
+    | some n =>
+      refine get π ?_
+      rewrite [h]
+      refine EFin.fin 1 (Nat.succ_lt_succ (WithTop.some_lt_some.1 ?_))
+      rewrite [←h]
+      exact (length π).2
+      done
+    | none   =>
+      refine get π ?_
+      rw [h]
+      exact EFin.inf 1
+
+  @[simp]
+  def last? : Option (Model.s μ) := by
+    cases h : (length π).val with
+    | some n =>
+      refine some (get π ?_)
+      rewrite [h]
+      exact EFin.mkSucc n
+    | none   => exact none
+
+  @[simp]
+  def isInitial := first π ∈ Model.initial m
+
+  @[simp]
+  def isMaximal := by
+    cases last? π with
+    | some st => exact Model.stateIsTerminal m st
+    | none    => exact True
 end PathFragment
 
-inductive PathFragment (ts : TS s a p) : ℕ∞ -> Type where
-  | finite   : (n : ℕ) -> PathFragment.Finite ts n -> PathFragment ts n
-  | infinite :            PathFragment.Infinite ts -> PathFragment ts ⊤
+namespace Model
+  variable {μ : Type} [Model μ] (m : μ)
+           {β : μ → Type} [PathFragment m β]
 
-namespace PathFragment
-  variable {ts : TS s a p}
+  @[simp]
+  def Paths (st : Model.s μ) :=
+    { π : β m // PathFragment.first π = st ∧ PathFragment.isMaximal π }
+end Model
 
-  namespace Finite
-    variable (πf : Finite ts n)
+structure FinitePathFragment {μ : Type} [Model μ] (m : μ) where
+  length   : {n : ℕ // 0 < n}
+  states   : Vector (Model.s μ) length.1.succ
+  valid    : ∀ j : Fin length, states.get j.succ ∈ Model.post m (states.get j.castSucc)
 
-    def base (st₁ st₂ : s) (mem : st₂ ∈ ts.post st₁) :=
-      { states := st₁ ::ᵥ st₂ ::ᵥ Vector.nil,
-        valid  := by
-          rintro ⟨j, lt⟩
-          cases j with
-          | zero   => exact mem
-          | succ n => apply False.elim
-                      apply Nat.not_lt_zero n
-                      apply Nat.succ_lt_succ_iff.1
-                      assumption
-        atLeas := Nat.zero_lt_one
-      : Finite ts 1 }
+namespace FinitePathFragment
+  variable {μ : Type} [Model μ] {m : μ}
+           (π : FinitePathFragment m)
 
-    def length :=
-      πf.states.length
+  @[simp] def get (j : Fin (length π).1.succ) := π.states.get j
 
-    def first := πf.states.head
-    def last  := πf.states.last
-    def get (j : Fin n.succ) :=
-      πf.states.get j
-    def second := πf.get ⟨1, Nat.succ_lt_succ πf.atLeas⟩
+  instance : PathFragment m (FinitePathFragment) where
+    length π :=
+      let n := length π
+      ⟨some n.1, WithTop.some_lt_some.2 n.2⟩
 
-    def Initial := πf.first ∈ ts.initial
-    def Maximal := ts.Terminal πf.last
-
-    def FromN (st : s) := { πf : Finite ts n // πf.first = st ∧ πf.Maximal}
-    def From (st : s)  := { πf : Σ (n : ℕ), Finite ts n // πf.2.first = st ∧ πf.2.Maximal}
-  end Finite
-
-  namespace Infinite
-    variable (πi : Infinite ts)
-
-    def first := πi.states.head
-    def get := πi.states.get
-    def second := πi.get 1
-
-    def Initial := πi.first ∈ ts.initial
-
-    def From (ts : TS s a p) (st : s) := { πi : Infinite ts // πi.first = st }
-  end Infinite
-
-  variable {n : ℕ∞} (π : ts.PathFragment n)
-
-  def length : ℕ∞ :=
-    match π with
-      | .finite _ πf => πf.length
-      | .infinite πi => ⊤
-
-  def first :=
-    match π with
-      | .finite _ πf => πf.first
-      | .infinite πi => πi.first
-  def last :=
-    match π with
-      | .finite _ πf => some πf.last
-      | .infinite _  => none
-  def get (i : EFin (Order.succ n)) := by
-    cases π with
-      | finite n πf =>
-        cases i with
-        | fin i lt => exact πf.get ⟨i, lt⟩
-      | infinite πi =>
-        cases i with
-        | inf i => exact πi.get i
-  def second :=
-    match π with
-      | .finite _ πf => πf.second
-      | .infinite πi => πi.second
-
-  def Initial :=
-    match π with
-      | .finite _ πf => πf.Initial
-      | .infinite πi => πi.Initial
-  def Maximal :=
-    match π with
-      | .finite _ πf => πf.Maximal
-      | .infinite πi => True
-
-  def From (ts : TS s a p) (st : s) := { π : Σ (n : ℕ), PathFragment ts n // π.2.first = st ∧ π.2.Maximal }
-
-  def valid {j : EFin n} : π.get j.succ ∈ ts.post (π.get j.castSucc) := by
-    cases π with
-    | finite n πf =>
+    get π j := by
       cases j with
-      | fin j lt =>
-        simp [EFin.succ, EFin.castSucc, PathFragment.get, Finite.get]
-        apply πf.valid ⟨j, lt⟩
-    | infinite πi =>
+      | fin i lt => exact get π ⟨i, lt⟩
+
+    valid π j := by
       cases j with
-      | inf j =>
-        simp [EFin.succ, EFin.castSucc, PathFragment.get, Infinite.get]
-        exact πi.valid j
+      | fin i lt => exact valid π ⟨i, lt⟩
+    
+end FinitePathFragment
 
-  def atLeast1 : 0 < n := by
-    cases π with
-    | finite n πf => apply WithTop.some_lt_some.2; exact πf.atLeas
-    | infinite πi => exact WithTop.some_lt_none 0
+structure InfinitePathFragment {μ : Type} [Model μ] (m : μ) where
+  states : Stream' (Model.s μ)
+  valid  : ∀ j : ℕ, states.get j.succ ∈ Model.post m (states.get j)
 
-  theorem head_eq_get_0 {n : ℕ} {v : Vector α n.succ} : v.head = v.get 0 := by simp
-  theorem second_mem_post_first : π.second ∈ ts.post π.first := by
-    cases π with
-    | finite n πf =>
-      simp [get, first, second, Finite.get, Finite.second, Finite.first]
-      rw [head_eq_get_0]
-      exact πf.valid ⟨0, πf.atLeas⟩
-    | infinite πi =>
-      exact πi.valid _
-end PathFragment
-end TS
+namespace InfinitePathFragment
+  variable {μ : Type} [Model μ] {m : μ}
+           (π : InfinitePathFragment m)
+
+  @[simp] def get (j : ℕ) := π.states.get j
+
+  instance : PathFragment m (InfinitePathFragment) where
+    length _ := ⟨⊤, WithTop.coe_lt_top 0⟩
+
+    get π j := by
+      cases j with
+      | inf j => exact get π j
+
+    valid π j := by
+      cases j with
+      | inf j => exact valid π j
+end InfinitePathFragment
