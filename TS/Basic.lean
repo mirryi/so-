@@ -1,6 +1,5 @@
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Set.Defs
-import Mathlib.Data.Set.Function
 
 structure TS (s a p : Type) [Fintype s] where
   initial : Set s
