@@ -1,40 +1,37 @@
 import Mathlib.Data.Fintype.Basic
 import Mathlib.Data.Set.Defs
 
-class Model (μ : Type) where
-  p  : Type
-  s : Type
-  sFin : Fintype s
+class Model (p s : Type) [Fintype s]
+            (μ : (p : Type) → (s : Type) → [Fintype s] → Type) where
+  initial : (m : μ p s) → Set s
+  label   : (m : μ p s) → (st : s) → Set p
 
-  initial : (m : μ) → Set s
-  label   : (m : μ) → (st : s) → Set p
-
-  post    : (m : μ) → (st : s) → Set s
-  pre     : (m : μ) → (st : s) → Set s
+  post    : (m : μ p s) → (st : s) → Set s
+  pre     : (m : μ p s) → (st : s) → Set s
 
 namespace Model
-  variable [Model μ] (m : μ)
+  variable [Fintype s] [Model p s μ] (m : μ p s)
 
   @[simp]
-  def setPost (c : Set (s μ)) :=
+  def setPost (c : Set s) :=
       { s' | ∃ s ∈ c, s' ∈ post m s }
 
   @[simp]
-  def setPre (c : Set (s μ)) :=
+  def setPre (c : Set s) :=
     { s' | ∃ s ∈ c, s' ∈ pre m s }
 
   @[simp]
-  def stateIsTerminal (s : s μ) :=
-    post m s = ∅
+  def stateIsTerminal (st : s) :=
+    post m st = ∅
 end Model
 
-structure TS (s a p : Type) [Fintype s] where
+structure TS (a p s : Type) [Fintype s] where
   initial : Set s
   trans   : s × a -> Set s
   label   : s -> Set p
 
 namespace TS
-  variable [sFin : Fintype s] (ts : TS s a p)
+  variable [Fintype s] (ts : TS a p s)
 
   @[simp]
   def postOn (s : s) (τ : a) :=
@@ -50,11 +47,7 @@ namespace TS
   def pre (s : s) :=
     { s' | ∃ τ : a, s' ∈ ts.preOn s τ }
 
-  instance : Model (TS s a p) where
-    p    := p
-    s    := s
-    sFin := sFin
-
+  instance : Model p s (TS a) where
     initial := initial
     label   := label
 

@@ -1,39 +1,36 @@
 import TS.Basic
 
 namespace CTL
-open TS
-
-class StateSatisfiable (p α : Type) where
-  StateSat : {s a : Type}
-           → {_ : Fintype s}
-           → (ts : TS s a p)
+class StateSatisfiable (α : (p : Type) → Type) where
+  StateSat : [Fintype s] → [Model p s μ] → (m : μ p s)
+           → (Φ : α p)
            → (st : s)
-           → (Φ : α)
            → Prop
 
-variable {p α β : Type}
-         [αSat : StateSatisfiable p α]
-         [βSat : StateSatisfiable p β]
-         {Φ : α}
-         {Ψ : β}
+variable [Fintype s] [Model p s μ] (m : μ p s)
+         [StateSatisfiable α] [StateSatisfiable β]
+         (Φ : α p) (Ψ : β p)
 
--- Sat(Φ)
-def SatState {s a : Type} {_ : Fintype s} (ts : TS s a p) (Φ : α) : Type :=
-  { st : s // StateSatisfiable.StateSat ts st Φ }
-def setOfSatStates {s a : Type} {_ : Fintype s} (ts : TS s a p) (Φ : α) :=
-  @Set.range s (SatState ts Φ) Subtype.val
+-- Sat(Φ) : Type
+@[simp]
+def SatState :=
+  { st : s // StateSatisfiable.StateSat m Φ st }
+-- Sat(Φ) : Set s
+def setOfSatStates :=
+  @Set.range s (SatState m Φ) Subtype.val
 
 -- TS ⊨ Φ
-def Sat {s a : Type} {_ : Fintype s} (ts: TS s a p) (Φ : α) :=
-  ∀ st ∈ ts.initial, StateSatisfiable.StateSat ts st Φ
+@[simp]
+def Sat :=
+  ∀ st ∈ Model.initial m, StateSatisfiable.StateSat m Φ st
 
 @[simp]
-theorem Sat_iff_initial_subset {s a : Type} {_ : Fintype s} (ts : TS s a p) (Φ : α)
-  : (Sat ts Φ) ↔ (ts.initial ⊆ setOfSatStates ts Φ) :=
+theorem Sat_iff_initial_subset
+  : (Sat m Φ) ↔ (Model.initial m ⊆ setOfSatStates m Φ) :=
   by
     apply Iff.intro
     . intro sat st mem
-      exact Set.mem_range_self (⟨st, sat st mem⟩ : SatState ts Φ)
+      exact Set.mem_range_self (⟨st, sat st mem⟩ : SatState m Φ)
     . intro sub st mem
       specialize sub mem
       unfold setOfSatStates at sub

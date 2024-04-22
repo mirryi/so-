@@ -9,11 +9,12 @@ namespace CokeMachine
     | Pay | Select | Soda | Beer deriving Fintype
   inductive Action where
     | InsertCoin | GetSoda | GetBeer | Internal
-  inductive P where
+  inductive Props where
     | Paid | Drink
+
   open State
   open Action
-  open P
+  open Props
 
   def coke_machine :=
     {
@@ -30,7 +31,7 @@ namespace CokeMachine
           | Pay => ∅
           | Select => {Paid}
           | Soda | Beer => {Paid, Drink}
-      : TS State Action P
+      : TS Action Props State
     }
 end CokeMachine
 end TS.Examples
