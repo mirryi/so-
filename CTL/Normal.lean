@@ -6,13 +6,13 @@ import CTL.Equivalence
 namespace CTL
 namespace StateFormula
 inductive ENF (p : Type) where
-  | top             : ENF p
-  | prop            : p → ENF p
-  | conj            : ENF p → ENF p → ENF p
-  | neg             : ENF p → ENF p
-  | existNext       : ENF p → ENF p
-  | existUntil      : ENF p → ENF p → ENF p
-  | potentialAlways : ENF p → ENF p
+  | top         : ENF p
+  | prop        : p → ENF p
+  | conj        : ENF p → ENF p → ENF p
+  | neg         : ENF p → ENF p
+  | existNext   : ENF p → ENF p
+  | existUntil  : ENF p → ENF p → ENF p
+  | existAlways : ENF p → ENF p
 
 namespace ENF
 @[simp]
@@ -27,7 +27,7 @@ def ofFormula : (Φ : StateFormula p) → ENF p
   | ⬝∀(Φ ⬝U Ψ) =>
     let Φ := ofFormula Φ
     let Ψ := ofFormula Ψ
-    ENF.conj (ENF.neg (ENF.existUntil (ENF.neg Ψ) (ENF.conj (ENF.neg Φ) (ENF.neg Ψ)))) (ENF.neg (ENF.potentialAlways (ENF.neg Ψ)))
+    ENF.conj (ENF.neg (ENF.existUntil (ENF.neg Ψ) (ENF.conj (ENF.neg Φ) (ENF.neg Ψ)))) (ENF.neg (existAlways (ENF.neg Ψ)))
 
 @[simp]
 def toFormula : (Φ : ENF p) → StateFormula p
@@ -37,7 +37,7 @@ def toFormula : (Φ : ENF p) → StateFormula p
   | neg Φ => ⬝¬(Φ.toFormula)
   | existNext Φ => ⬝∃⬝◯(Φ.toFormula)
   | existUntil Φ Ψ => ⬝∃(Φ.toFormula ⬝U Ψ.toFormula)
-  | potentialAlways Φ => ⬝∃□(Φ.toFormula)
+  | existAlways Φ => ⬝∃□(Φ.toFormula)
 
 section Satisfaction
 variable [Fintype s] [Model p s μ] (m : μ p s)
