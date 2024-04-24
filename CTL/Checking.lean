@@ -4,6 +4,7 @@ import CTL.Basic
 import CTL.Normal
 
 namespace CTL
+open StateFormula
 
 -- theorem top_satStateSet_def : setOfSatStates ts ⬝⊤ = Set.univ := by
   -- simp [Set.ext_iff, setOfSatStates, SatState, StateSat]
@@ -29,15 +30,33 @@ namespace CTL
     -- simp [PathSat]
     -- exact ⟨_ , _⟩
 
--- def computeSatENF (ts : TS s a p) (Φ : @StateFormula.ENF p) : Set s :=
-  -- match Φ with
-  -- | ENF.top => Set.univ
-  -- | ENF.prop a => { st : s | a ∈ ts.label st }
-  -- | ENF.conj Φ₁ Φ₂ => (computeSatENF ts Φ₁) ∩ (computeSatENF ts Φ₂)
-  -- | ENF.neg Φ => Set.univ \ (computeSatENF ts Φ)
-  -- | ENF.existNext Φ => { st : s | ts.post st ∩ (computeSatENF ts Φ) ≠ ∅ }
-  -- | ENF.existUntil Φ Ψ => _
-  -- | ENF.potentialAll Φ => _
+variable [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s)
+
+example (t : Type) [Fintype t] (s : Set t) [DecidablePred (· ∈ s)]
+: ∃ f : Finset t, ↑f = s := by
+  exact ⟨s.toFinset, s.coe_toFinset⟩
+
+def sat (Φ : StateFormula p) : Set s :=
+  satENF (ENF.ofFormula Φ)
+where
+  satENF := fun
+    | ENF.top => Set.univ
+    | ENF.prop a => { st : s | a ∈ Model.label m st }
+    | ENF.conj Φ₁ Φ₂ => (satENF Φ₁) ∩ (satENF Φ₂)
+    | ENF.neg Φ => Set.univ \ (satENF Φ)
+    | ENF.existNext Φ => { st : s | Model.post m st ∩ (satENF Φ) ≠ ∅ }
+    | ENF.existUntil Φ Ψ => sorry
+    | ENF.existAlways Φ => sorry
+
+  satENFExistAlways (T : Finset s) :=
+    let T' := { st ∈ T | Model.post m st ∩ T = ∅ }
+    let _ : DecidablePred (· ∈ T') := fun st => by
+      simp [T']
+      exact And.decidable (dp := Finset.decidableMem _ _) (dq := decEq _ _)
+    let T' := setFintype T'
+    T'
+    -- if T'.Nonempty then T
+    -- else T
 
 -- theorem computerSat_def : computeSat ts Φ = satStateSet ts Φ :=
   -- sorry

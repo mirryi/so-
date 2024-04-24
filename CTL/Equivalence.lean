@@ -8,18 +8,18 @@ variable [StateSatisfiable α] [StateSatisfiable β]
 -- Sat(Φ) = Sat(Ψ)
 @[simp]
 def Equiv :=
-  ∀ {s} [Fintype s] {μ} [Model p s μ] {m : μ p s}, setOfSatStates m Φ = setOfSatStates m Ψ
+  ∀ {s} [Fintype s] {μ} [DecidableEq s] [Model p s μ] {m : μ p s}, setOfSatStates m Φ = setOfSatStates m Ψ
 
 -- TS ⊨ Φ ↔ TS ⊨ Ψ
 @[simp]
 def Equiv' :=
-  ∀ {s} [Fintype s] {μ} [Model p s μ] {m : μ p s}, Sat m Φ ↔ Sat m Ψ
+  ∀ {s} [Fintype s] {μ} [DecidableEq s] [Model p s μ] {m : μ p s}, Sat m Φ ↔ Sat m Ψ
 
 namespace Equiv
 @[simp]
 def toEquiv' : Equiv Φ Ψ → Equiv' Φ Ψ := by
   simp [setOfSatStates, Set.ext_iff]
-  intro h _ _ _ _ _
+  intro h _ _ _ _ _ _
   constructor
   . rintro sat st mem
     exact (h st).1 (sat st mem)

@@ -6,9 +6,9 @@ namespace TS.Examples
 -- Example 2.2 Beverage Vending Machine
 namespace CokeMachine
   inductive State where
-    | Pay | Select | Soda | Beer deriving Fintype
+    | Pay | Select | Soda | Beer deriving Fintype, DecidableEq
   inductive Action where
-    | InsertCoin | GetSoda | GetBeer | Internal
+    | InsertCoin | GetSoda | GetBeer | Internal deriving Fintype
   inductive Props where
     | Paid | Drink
 

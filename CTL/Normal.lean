@@ -40,7 +40,7 @@ def toFormula : (Φ : ENF p) → StateFormula p
   | existAlways Φ => ⬝∃□(Φ.toFormula)
 
 section Satisfaction
-variable [Fintype s] [Model p s μ] (m : μ p s)
+variable [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s)
 
 @[simp]
 def StateSat (Φ : ENF p) (st : s) := StateFormula.StateSat m Φ.toFormula st

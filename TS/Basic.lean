@@ -1,16 +1,21 @@
+import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.Fintype.Prod
+import Mathlib.Data.Prod.Basic
 import Mathlib.Data.Set.Defs
 
-class Model (p s : Type) [Fintype s]
+import TS.Finset
+
+class Model (p s : Type) [Fintype s] [DecidableEq s]
             (μ : (p : Type) → (s : Type) → [Fintype s] → Type) where
-  initial : (m : μ p s) → Set s
+  initial : (m : μ p s) → Finset s
   label   : (m : μ p s) → (st : s) → Set p
 
-  post    : (m : μ p s) → (st : s) → Set s
-  pre     : (m : μ p s) → (st : s) → Set s
+  post    : (m : μ p s) → (st : s) → Finset s
+  pre     : (m : μ p s) → (st : s) → Finset s
 
 namespace Model
-  variable [Fintype s] [Model p s μ] (m : μ p s)
+  variable [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s)
 
   @[simp]
   def setPost (c : Set s) :=
@@ -25,29 +30,30 @@ namespace Model
     post m st = ∅
 end Model
 
-structure TS (a p s : Type) [Fintype s] where
-  initial : Set s
-  trans   : s × a -> Set s
+structure TS (a p s : Type) [Fintype a] [Fintype s] where
+  initial : Finset s
+  trans   : s × a -> Finset s
   label   : s -> Set p
 
 namespace TS
-  variable [Fintype s] (ts : TS a p s)
+  variable [Fintype a] [Fintype s] [DecidableEq s] (ts : TS a p s)
 
   @[simp]
-  def postOn (s : s) (τ : a) :=
-    ts.trans (s, τ)
+  def postOn (st : s) (τ : a) :=
+    ts.trans (st, τ)
   @[simp]
-  def post (s : s) :=
-    { s' | ∃ τ : a, s' ∈ ts.postOn s τ }
+  def post (st : s) :=
+    let sts := { (st', τ) : s × a | st' ∈ ts.postOn st τ }.toFinset
+    Finset.image Prod.fst sts
 
   @[simp]
   def preOn (s : s) (τ : a) :=
-    { s' | s ∈ ts.postOn s' τ }
+    { s' | s ∈ ts.postOn s' τ }.toFinset
   @[simp]
   def pre (s : s) :=
-    { s' | ∃ τ : a, s' ∈ ts.preOn s τ }
+    { s' | ∃ τ : a, s' ∈ ts.preOn s τ }.toFinset
 
-  instance : Model p s (TS a) where
+  instance : Model p s (fun p s => TS a p s) where
     initial := initial
     label   := label
 

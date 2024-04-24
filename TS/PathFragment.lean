@@ -5,14 +5,14 @@ import Mathlib.Data.ENat.Basic
 import TS.Basic
 import TS.EFin
 
-class PathFragment [Fintype s] [Model p s μ] (m : μ p s)
+class PathFragment [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s)
                    (β : μ p s → Type) where
   length   : (π : β m) → {n : ℕ∞ // Nat.zero < n}
   get      : (π : β m) → (j : EFin (Order.succ (length π))) → s
   valid    : (π : β m) → (j : EFin (length π)) → get π j.succ ∈ Model.post m (get π j.castSucc)
 
 namespace PathFragment
-  variable [Fintype s] [Model p s μ] {m : μ p s}
+  variable [Fintype s] [DecidableEq s] [Model p s μ] {m : μ p s}
            {β : μ p s → Type} [PathFragment m β] (π : β m)
 
   @[simp]
@@ -53,7 +53,7 @@ namespace PathFragment
 end PathFragment
 
 namespace Model
-  variable [Fintype s] [Model p s μ] (m : μ p s)
+  variable [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s)
            {β : μ p s → Type} [PathFragment m β]
 
   @[simp]
@@ -61,13 +61,13 @@ namespace Model
     { π : β m // PathFragment.first π = st ∧ PathFragment.isMaximal π }
 end Model
 
-structure FinitePathFragment [Fintype s] [Model p s μ] (m : μ p s) where
+structure FinitePathFragment [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s) where
   length   : {n : ℕ // 0 < n}
   states   : Vector s length.1.succ
   valid    : (j : Fin length) → states.get j.succ ∈ Model.post m (states.get j.castSucc)
 
 namespace FinitePathFragment
-  variable [Fintype s] [Model p s μ] {m : μ p s}
+  variable [Fintype s] [DecidableEq s] [Model p s μ] {m : μ p s}
            (π : FinitePathFragment m)
 
   instance : PathFragment m (FinitePathFragment) where
@@ -84,12 +84,12 @@ namespace FinitePathFragment
       | fin i lt => exact valid π ⟨i, lt⟩
 end FinitePathFragment
 
-structure InfinitePathFragment [Fintype s] [Model p s μ] (m : μ p s) where
+structure InfinitePathFragment [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s) where
   states : Stream' s 
   valid  : (j : ℕ) → states.get j.succ ∈ Model.post m (states.get j)
 
 namespace InfinitePathFragment
-  variable [Fintype s] [Model p s μ] {m : μ p s}
+  variable [Fintype s] [DecidableEq s] [Model p s μ] {m : μ p s}
            (π : InfinitePathFragment m)
 
   @[simp] def get (j : ℕ) := π.states.get j
@@ -106,12 +106,12 @@ namespace InfinitePathFragment
       | inf j => exact valid π j
 end InfinitePathFragment
 
-inductive FiniteOrInfinitePathFragment [Fintype s] [Model p s μ] (m : μ p s) where
+inductive FiniteOrInfinitePathFragment [Fintype s] [DecidableEq s] [Model p s μ] (m : μ p s) where
   | fin : FinitePathFragment   m → FiniteOrInfinitePathFragment m
   | inf : InfinitePathFragment m → FiniteOrInfinitePathFragment m
 
 namespace FiniteOrInfinitePathFragment
-  variable [Fintype s] [Model p s μ] {m : μ p s}
+  variable [Fintype s] [DecidableEq s] [Model p s μ] {m : μ p s}
            (π : FiniteOrInfinitePathFragment m)
 
   instance : PathFragment m (FiniteOrInfinitePathFragment) where
