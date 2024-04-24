@@ -4,22 +4,19 @@ import CTL.Satisfaction
 import CTL.Equivalence
 
 namespace CTL
-variable {p : Type}
-         {inst : Fintype s}
-
 namespace StateFormula
-inductive ENF where
-  | top          : ENF
-  | prop         : p → ENF
-  | conj         : ENF → ENF → ENF
-  | neg          : ENF → ENF
-  | existNext    : ENF → ENF
-  | existUntil   : ENF → ENF → ENF
-  | potentialAll : ENF -> ENF
+inductive ENF (p : Type) where
+  | top             : ENF p
+  | prop            : p → ENF p
+  | conj            : ENF p → ENF p → ENF p
+  | neg             : ENF p → ENF p
+  | existNext       : ENF p → ENF p
+  | existUntil      : ENF p → ENF p → ENF p
+  | potentialAlways : ENF p → ENF p
 
 namespace ENF
 @[simp]
-def ofFormula : (Φ : @StateFormula p) → @ENF p
+def ofFormula : (Φ : StateFormula p) → ENF p
   | ⬝⊤ => ENF.top
   | ⬝a => ENF.prop a
   | Φ ⬝∧ Ψ => ENF.conj (ofFormula Φ) (ofFormula Ψ)
@@ -30,25 +27,30 @@ def ofFormula : (Φ : @StateFormula p) → @ENF p
   | ⬝∀(Φ ⬝U Ψ) =>
     let Φ := ofFormula Φ
     let Ψ := ofFormula Ψ
-    ENF.conj (ENF.neg (ENF.existUntil (ENF.neg Ψ) (ENF.conj (ENF.neg Φ) (ENF.neg Ψ)))) (ENF.neg (ENF.potentialAll (ENF.neg Ψ)))
+    ENF.conj (ENF.neg (ENF.existUntil (ENF.neg Ψ) (ENF.conj (ENF.neg Φ) (ENF.neg Ψ)))) (ENF.neg (ENF.potentialAlways (ENF.neg Ψ)))
 
 @[simp]
-def toFormula : (Φ : @ENF p) → @StateFormula p
+def toFormula : (Φ : ENF p) → StateFormula p
   | top => ⬝⊤
   | prop a => ⬝a
   | conj Φ₁ Φ₂ => (Φ₁.toFormula) ⬝∧ (Φ₂.toFormula)
   | neg Φ => ⬝¬(Φ.toFormula)
   | existNext Φ => ⬝∃⬝◯(Φ.toFormula)
   | existUntil Φ Ψ => ⬝∃(Φ.toFormula ⬝U Ψ.toFormula)
-  | potentialAll Φ => ⬝∃■(Φ.toFormula)
+  | potentialAlways Φ => ⬝∃□(Φ.toFormula)
+
+section Satisfaction
+variable [Fintype s] [Model p s μ] (m : μ p s)
 
 @[simp]
-def StateSat (ts : TS s a p) (st : s) (Φ : ENF) := StateFormula.StateSat ts st Φ.toFormula
+def StateSat (Φ : ENF p) (st : s) := StateFormula.StateSat m Φ.toFormula st
 
-instance : StateSatisfiable p (@ENF p) where
-  StateSat := StateSat
+instance : StateSatisfiable ENF where
+  StateSat m Φ st := StateSat m Φ st
+end Satisfaction
 
-theorem ofFormula_equiv {Φ : @StateFormula p} : Equiv (p := p) Φ (ofFormula Φ) :=
+section Equivalence
+theorem ofFormula_equiv {Φ : StateFormula p} : Equiv (p := p) Φ (ofFormula Φ) :=
   match Φ with
   | ⬝⊤ => by simp [setOfSatStates, StateSatisfiable.StateSat]
   | ⬝a => by simp [setOfSatStates, StateSatisfiable.StateSat]
@@ -56,8 +58,9 @@ theorem ofFormula_equiv {Φ : @StateFormula p} : Equiv (p := p) Φ (ofFormula Φ
   | ⬝¬Φ => by simp; apply StateFormula.neg_congr; apply ofFormula_equiv
   | ⬝∃⬝◯Φ => by simp; apply StateFormula.exist_next_congr; apply ofFormula_equiv
   | ⬝∃(Φ ⬝U Ψ) => by simp; apply StateFormula.exist_untl_congr <;> apply ofFormula_equiv
-  | ⬝∀⬝◯Φ => by simp; exact Trans.trans (StateFormula.all_next_congr ofFormula_equiv) StateFormula.all_next_duality
-  | ⬝∀(Φ ⬝U Ψ) => by simp; exact Trans.trans (StateFormula.all_untl_congr ofFormula_equiv ofFormula_equiv) StateFormula.all_untl_duality
+  | ⬝∀⬝◯Φ => by simp; exact Trans.trans (StateFormula.all_next_congr _ ofFormula_equiv) (StateFormula.all_next_duality _)
+  | ⬝∀(Φ ⬝U Ψ) => by simp; exact Trans.trans (StateFormula.all_untl_congr _ ofFormula_equiv ofFormula_equiv) (StateFormula.all_untl_duality _)
+end Equivalence
 
 end ENF
 end StateFormula

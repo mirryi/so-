@@ -29,10 +29,10 @@ namespace StateFormula
   @[simp] def iff  := conj (impl Φ₁ Φ₂) (impl Φ₂ Φ₁)  -- (Φ₁ ⬝→ Φ₂) ⬝∧ (Φ₂ ⬝→ Φ₁)
   @[simp] def xor  := disj (conj Φ₁ (neg Φ₂)) (conj Φ₂ (neg Φ₁)) -- (Φ₁ ⬝∧ ⬝¬Φ₂) ⬝∨ (Φ₂ ⬝∧ ⬝¬Φ₁)
 
-  @[simp] def potential    := exist (untl top Φ)
-  @[simp] def inevitable   := all (untl top Φ)
-  @[simp] def potentialAll := neg (inevitable (neg Φ))
-  @[simp] def invariant    := neg (potential (neg Φ))
+  @[simp] def potential       := exist (untl top Φ)
+  @[simp] def inevitable      := all (untl top Φ)
+  @[simp] def potentialAlways := neg (inevitable (neg Φ))
+  @[simp] def invariant       := neg (potential (neg Φ))
 
 namespace Syntax
   notation  "⬝⊤"   => StateFormula.top
@@ -45,9 +45,9 @@ namespace Syntax
   infixl:60 " ⬝↔ " => StateFormula.iff
   prefix:50 "⬝∃ "  => StateFormula.exist
   prefix:50 "⬝∀ "  => StateFormula.all
-  prefix:50 "⬝∃♢"  => StateFormula.potential -- \exists\diamondsuit
-  prefix:50 "⬝∀♢"  => StateFormula.inevitable -- \forall\diamondsuit
-  prefix:50 "⬝∃□"  => StateFormula.potentialAll -- \exists\sqw
+  prefix:50 "⬝∃◇"  => StateFormula.potential -- \exists\Diamond
+  prefix:50 "⬝∀◇"  => StateFormula.inevitable -- \forall\Diamond
+  prefix:50 "⬝∃□"  => StateFormula.potentialAlways -- \exists\sqw
   prefix:50 "⬝∀□"  => StateFormula.invariant -- \forall\sqw
   prefix:50 "⬝◯"   => PathFormula.next
   infixr:50 " ⬝U " => PathFormula.untl
@@ -77,7 +77,7 @@ mutual
 end
 
 -- @[simp]
--- theorem StateSat_potentialAll : StateSat m (⬝∃□Φ) st ↔ ∃π : Model.Paths (β := FiniteOrInfinitePathFragment) m st, ∀j, StateSat m Φ (PathFragment.get π.1 j) := by
+-- theorem StateSat_potentialAlways : StateSat m (⬝∃□Φ) st ↔ ∃π : Model.Paths (β := FiniteOrInfinitePathFragment) m st, ∀j, StateSat m Φ (PathFragment.get π.1 j) := by
   -- simp
 
 @[simp]
@@ -148,14 +148,14 @@ theorem all_untl_congr (h₁ : Equiv Φ Φ') (h₂ : Equiv Ψ Ψ') : Equiv (⬝�
 theorem all_next_duality : Equiv (⬝∀⬝◯Φ) (⬝¬(⬝∃⬝◯⬝¬Φ)) := by
   simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, StateSat, PathSat, Set.ext_iff] at *
 
-theorem inevitable_duality : Equiv (⬝∀♢Φ) (⬝¬(⬝∃□⬝¬Φ)) := by
-  simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, StateSat, PathSat, StateFormula.inevitable, PathFormula.untl] at *
+-- theorem inevitable_duality : Equiv (⬝∀♢Φ) (⬝¬(⬝∃□⬝¬Φ)) := by
+  -- simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, StateSat, PathSat, StateFormula.inevitable, PathFormula.untl, Set.ext_iff] at *
 
-theorem exist_next_duality : Equiv (⬝∃⬝◯Φ) (⬝¬(⬝∀⬝◯⬝¬Φ)) := by
-  simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat]
+-- theorem exist_next_duality : Equiv (⬝∃⬝◯Φ) (⬝¬(⬝∀⬝◯⬝¬Φ)) := by
+  -- simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat]
 
-theorem potential_duality : Equiv (⬝∃♢Φ) (⬝¬(⬝∀□⬝¬Φ)) := by
-  simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, StateFormula.potential, PathFormula.untl]
+-- theorem potential_duality : Equiv (⬝∃♢Φ) (⬝¬(⬝∀□⬝¬Φ)) := by
+  -- simp [Equiv, setOfSatStates, SatState, StateSatisfiable.StateSat, StateSat, PathSat, StateFormula.potential, PathFormula.untl, Set.ext_iff] at *
 
 theorem all_untl_duality : Equiv (⬝∀(Φ ⬝U Ψ)) (⬝¬(⬝∃(⬝¬Ψ ⬝U (⬝¬Φ ⬝∧ ⬝¬Ψ))) ⬝∧ ⬝¬(⬝∃□⬝¬Ψ)) := by
   sorry

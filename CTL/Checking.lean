@@ -4,8 +4,6 @@ import CTL.Basic
 import CTL.Normal
 
 namespace CTL
-open StateFormula
-variable {inst : Fintype s}
 
 -- theorem top_satStateSet_def : setOfSatStates ts ⬝⊤ = Set.univ := by
   -- simp [Set.ext_iff, setOfSatStates, SatState, StateSat]
@@ -31,15 +29,15 @@ variable {inst : Fintype s}
     -- simp [PathSat]
     -- exact ⟨_ , _⟩
 
-def computeSatENF (ts : TS s a p) (Φ : @StateFormula.ENF p) : Set s :=
-  match Φ with
-  | ENF.top => Set.univ
-  | ENF.prop a => { st : s | a ∈ ts.label st }
-  | ENF.conj Φ₁ Φ₂ => (computeSatENF ts Φ₁) ∩ (computeSatENF ts Φ₂)
-  | ENF.neg Φ => Set.univ \ (computeSatENF ts Φ)
-  | ENF.existNext Φ => { st : s | ts.post st ∩ (computeSatENF ts Φ) ≠ ∅ }
-  | ENF.existUntil Φ Ψ => _
-  | ENF.potentialAll Φ => _
+-- def computeSatENF (ts : TS s a p) (Φ : @StateFormula.ENF p) : Set s :=
+  -- match Φ with
+  -- | ENF.top => Set.univ
+  -- | ENF.prop a => { st : s | a ∈ ts.label st }
+  -- | ENF.conj Φ₁ Φ₂ => (computeSatENF ts Φ₁) ∩ (computeSatENF ts Φ₂)
+  -- | ENF.neg Φ => Set.univ \ (computeSatENF ts Φ)
+  -- | ENF.existNext Φ => { st : s | ts.post st ∩ (computeSatENF ts Φ) ≠ ∅ }
+  -- | ENF.existUntil Φ Ψ => _
+  -- | ENF.potentialAll Φ => _
 
 -- theorem computerSat_def : computeSat ts Φ = satStateSet ts Φ :=
   -- sorry

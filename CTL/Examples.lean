@@ -22,10 +22,10 @@ section
   variable (crit₁ crit₂ : α)
   variable (red yellow green : β)
 
-  #check ⬝∀■(⬝¬⬝crit₁ ⬝∨ ⬝¬⬝crit₂)
-  #check (⬝∀■⬝∀♢⬝crit₁) ⬝∧ (⬝∀■⬝∀♢⬝crit₂)
-  #check ⬝∀■(⬝yellow ⬝∨ (⬝∀⬝◯⬝¬⬝red))
-  #check ⬝∀■⬝∀♢⬝green
+  #check ⬝∀□(⬝¬⬝crit₁ ⬝∨ ⬝¬⬝crit₂)
+  #check (⬝∀□⬝∀◇⬝crit₁) ⬝∧ (⬝∀□⬝∀◇⬝crit₂)
+  #check ⬝∀□(⬝yellow ⬝∨ (⬝∀⬝◯⬝¬⬝red))
+  #check ⬝∀□⬝∀◇⬝green
 end
 
 section
